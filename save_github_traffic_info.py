@@ -37,10 +37,16 @@ for repo_config_filename in glob('repo/*.json'):
         },
     )
 
+    response = r.json()
     if r.status_code < 200 or r.status_code >= 300:
-        raise Exception(r.json())
+        raise Exception(response)
 
-    views = r.json()['count']
+    if 'views' in response and len(response['views']) > 0:
+        views = response['views'][-1]['count']
+        unique_views = response['views'][-1]['uniques']
+    else:
+        views = 0
+        unique_views = 0
 
     #clones
     url = 'https://api.github.com/repos/{}/{}/traffic/clones?per=day'.format(owner, repo)
@@ -53,19 +59,25 @@ for repo_config_filename in glob('repo/*.json'):
         },
     )
 
+    response = r.json()
     if r.status_code < 200 or r.status_code >= 300:
-        raise Exception(r.json())
+        raise Exception(response)
 
-    clones = r.json()['count']
+    if 'clones' in response and len(response['clones']) > 0:
+        clones = response['clones'][-1]['count']
+        unique_clones = response['clones'][-1]['uniques']
+    else:
+        clones = 0
+        unique_clones = 0
 
     #log results
     filename = os.path.join('repo', '{}.stats.tsv'.format(repo))
 
     if not os.path.isfile(filename):
         with open(filename, 'a') as file:
-            file.write('{}\t{}\t{}\n'.format('Date', 'Views', 'Clones'))
+            file.write('{}\t{}\t{}\t{}\t{}\n'.format('Date', 'Views', 'Unique views', 'Clones', 'Unique clones'))
 
     with open(filename, 'a') as file:
-        file.write('{}\t{}\t{}\n'.format(datetime.now().strftime('%Y-%m-%d'), views, clones))
+        file.write('{}\t{}\t{}\t{}\t{}\n'.format(datetime.now().strftime('%Y-%m-%d'), views, unique_views, clones, unique_clones))
 
 print('Successfully downloaded lastest traffic data')
