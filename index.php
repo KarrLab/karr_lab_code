@@ -289,7 +289,7 @@ function get_latest_build_circleci($repo){
 
 function get_latest_distribution_pypi($repo) {
   $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('https://pypi.python.org/pypi/%s/json', $repo));
+  curl_setopt($ch, CURLOPT_URL, sprintf('https://pypi.python.org/pypi/%s/json', str_replace('_', '-', $repo)));
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   $data = curl_exec($ch);
   $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -485,13 +485,15 @@ foreach ($pkg_configs as $pkg_config) {
     #analysis
     echo "<td>";
     if ($pkg->code_analysis && $pkg->code_analysis->code_climate){
-        if ($pkg->code_analysis->code_climate->open_source)
-          echo sprintf("<a href='https://codeclimate.com/github/KarrLab/%s'/>N/A</a>", $pkg->id);
-        else {
+        if ($pkg->code_analysis->code_climate->open_source) {
+          $url = sprintf('https://codeclimate.com/github/KarrLab/%s', $pkg->id);
+          $gpa = 'N/A';
+        } else {
+          $url = sprintf('https://codeclimate.com/repos/%s', $pkg->code_analysis->code_climate->token);
           $analysis = get_analysis_codeclimate($pkg->code_analysis->code_climate->token);
-          echo sprintf("<a href='https://codeclimate.com/repos/%s'/>%.1f</a>",
-            $pkg->code_analysis->code_climate->repo_id, $analysis->last_snapshot->gpa);
+          $gpa = $analysis->last_snapshot->gpa;
         }
+        echo sprintf("<a href='%s'>%s</a>", $url, $gpa);
     }
     echo "</td>\n";
 
