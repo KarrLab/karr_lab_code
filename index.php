@@ -191,24 +191,27 @@ function get_source_github($repo){
   rsort($tags);
   $latest_tag = $tags[0];
 
-  #views
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('https://api.github.com/repos/KarrLab/%s/traffic/views?per=week', $repo));
-  curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-      sprintf('Authorization: token %s', $access_token),
-      'Accept: application/vnd.github.spiderman-preview'
-    ));
-  curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception('Error reading info from GitHub');
-
-  $data = json_decode($data);
-  $views = $data->count;
+  #views and clones
+  $views = 0;
+  $clones = 0;
+  $unique_views = 0;
+  $unique_clones = 0;
+  
+  $stats_filename = sprintf('repo/%s.stats.tsv', $repo);
+  if (file_exists($stats_filename)) {
+    $fp = fopen($stats_filename, 'r');
+    if (!feof($fp))
+      $line = fgets($fp); #header
+    while (!feof($fp)) {
+        $line = rtrim(fgets($fp));
+        $data = preg_split('/\t/', $line);
+        $views += $data[1];
+        $unique_views += $data[2];
+        $clones += $data[3];
+        $unique_clones += $data[4];
+    }
+    fclose($fp);
+  }
 
   #downloads
   $ch = curl_init();
@@ -226,25 +229,6 @@ function get_source_github($repo){
   $downloads = 0;
   foreach (json_decode($data) as $release)
     $downloads += $release->assets->download_count;
-
-  #clones
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('https://api.github.com/repos/KarrLab/%s/traffic/clones?per=week', $repo));
-  curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    sprintf('Authorization: token %s', $access_token),
-    'Accept: application/vnd.github.spiderman-preview'
-  ));
-  curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception('Error reading info from GitHub');
-
-  $data = json_decode($data);
-  $clones = $data->count;
 
   #forks
   $ch = curl_init();
@@ -265,8 +249,10 @@ function get_source_github($repo){
   return array(
     'latest_tag' => $latest_tag,
     'views' => $views,
+    'unique_views' => $unique_views,
     'downloads' => $downloads,
     'clones' => $clones,
+    'unique_clones' => $unique_clones,
     'forks' => $forks,
   );
 }
