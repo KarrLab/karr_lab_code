@@ -510,7 +510,13 @@ foreach ($pkg_configs as $pkg_config) {
     echo "<td>";
     if ($pkg->distribution && $pkg->distribution->repo == 'pypi') {
       $dist_pkg_id = ($pkg->distribution->package ? $pkg->distribution->package : $pkg->id);
-      echo sprintf("<a href='https://pypi.python.org/pypi/%s'>%d</a>", $pkg->id, $distribution->info->downloads->last_month);
+
+      $downloads = 0;
+      foreach($distribution->releases as $release)
+        foreach($release as $file)
+          $downloads += $file->downloads;
+
+      echo sprintf("<a href='https://pypi.python.org/pypi/%s'>%d</a>", $pkg->id, $downloads);
     }
     echo "</td>\n";
 
