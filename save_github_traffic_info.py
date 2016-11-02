@@ -1,4 +1,4 @@
-#!/home/karrlab_code/opt/python-3.5.2/bin/python
+#!/usr/bin/env python
 
 from datetime import datetime
 from glob import glob
