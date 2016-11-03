@@ -144,6 +144,9 @@ $cache = new Cache(array(
   'extension' => '.cache'
 ));
 
+if ($_GET['erase_cache'])
+  $cache->eraseAll();
+
 function get_url($url, $cache, $expiration=86400, $post=NULL, $username=NULL, $password=NULL, $token=NULL) {
   $response = $cache->retrieve($url);
 
