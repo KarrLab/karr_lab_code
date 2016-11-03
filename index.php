@@ -137,54 +137,56 @@
                                 <tbody>
 <?php
 
-function get_source_github($repo){
+require_once('lib/Simple-PHP-Cache-1.6/cache.class.php');
+$cache = new Cache(array(
+  'name'      => 'index',
+  'path'      => '.',
+  'extension' => '.cache'
+));
+
+function get_url($url, $cache, $expiration=86400, $post=NULL, $username=NULL, $password=NULL, $token=NULL) {
+  $response = $cache->retrieve($url);
+
+  if (is_null($response)) {
+    $user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36';
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    if ($token)
+      curl_setopt($ch, CURLOPT_HTTPHEADER, array(sprintf('Authorization: token %s', $token)));
+    if ($post) {
+      curl_setopt($ch, CURLOPT_POST, true);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
+    }
+    if ($username && $password)
+      curl_setopt($ch, CURLOPT_USERPWD, $username.':'.$password);
+    curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = json_decode(curl_exec($ch));
+
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpcode < 200 || $httpcode >= 300)
+      throw new Exception(sprintf('Error reading URL: %s', $url));
+
+    $cache->store($url, $response, $expiration);
+  }
+
+  return $response;
+}
+
+function get_source_github($repo, $cache){
   $username = rtrim(file_get_contents('tokens/GITHUB_USERNAME'));
   $password = rtrim(file_get_contents('tokens/GITHUB_PASSWORD'));
   $client_id = rtrim(file_get_contents('tokens/GITHUB_CLIENT_ID'));
   $client_secret = rtrim(file_get_contents('tokens/GITHUB_CLIENT_SECRET'));
-  $access_token = rtrim(file_get_contents('tokens/GITHUB_ACCESS_TOKEN'));
   $user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36';
 
-  //authorize access to repository
-  $ch = curl_init();
-  $url = sprintf('https://api.github.com/authorizations', $repo);
-  curl_setopt($ch, CURLOPT_URL, $url);
-  curl_setopt($ch, CURLOPT_POST, 1);
-  curl_setopt($ch, CURLOPT_USERPWD, $username.':'.$password);
-  curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array(
-    'scopes' => array('repo', 'repo:status', 'repo_deployment', 'public_repo'),
-    'note' => 'For code.karrlab.org',
-    'note_url' => 'http://code.karrlab.org',
-    'client_id' => $client_id,
-    'client_secret' => $client_secret
-  )));
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception(sprintf('Error authorizing code.karrlab.org: %s', $repo));
-
-  $data = json_decode($data);
-  $access_token = $data->token;
-
   #latest release
-  $ch = curl_init();
   $url = sprintf('https://api.github.com/repos/KarrLab/%s/tags', $repo);
-  curl_setopt($ch, CURLOPT_URL, $url);
-  curl_setopt($ch, CURLOPT_HTTPHEADER, array(sprintf('Authorization: token %s', $access_token)));
-  curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception(sprintf('Error reading info from GitHub: %s', $repo));
-
-  $data = json_decode($data);
+  $data = get_url($url, $cache, 24*60*60, NULL, $username, $password);
   $tags = array();
   foreach($data as $tag)
     array_push($tags, $tag->name);
@@ -196,7 +198,7 @@ function get_source_github($repo){
   $clones = 0;
   $unique_views = 0;
   $unique_clones = 0;
-  
+
   $stats_filename = sprintf('repo/%s.stats.tsv', $repo);
   if (file_exists($stats_filename)) {
     $fp = fopen($stats_filename, 'r');
@@ -214,36 +216,16 @@ function get_source_github($repo){
   }
 
   #downloads
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('https://api.github.com/repos/KarrLab/%s/releases', $repo));
-  curl_setopt($ch, CURLOPT_HTTPHEADER, array(sprintf('Authorization: token %s', $access_token)));
-  curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception('Error reading info from GitHub');
-
+  $url = sprintf('https://api.github.com/repos/KarrLab/%s/releases', $repo);
+  $data = get_url($url, $cache, 24*60*60, NULL, $username, $password);
   $downloads = 0;
-  foreach (json_decode($data) as $release)
+  foreach ($data as $release)
     $downloads += $release->assets->download_count;
 
   #forks
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('https://api.github.com/repos/KarrLab/%s/forks', $repo));
-  curl_setopt($ch, CURLOPT_HTTPHEADER, array(sprintf('Authorization: token %s', $access_token)));
-  curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception('Error reading info from GitHub');
-
-  $forks = count(json_decode($data));
+  $url = sprintf('https://api.github.com/repos/KarrLab/%s/forks', $repo);
+  $data = get_url($url, $cache, 24*60*60, NULL, $username, $password);
+  $forks = count($data);
 
   #return info
   return array(
@@ -257,80 +239,37 @@ function get_source_github($repo){
   );
 }
 
-function get_latest_build_circleci($repo){
+function get_latest_build_circleci($repo, $cache){
   $circleci_token = rtrim(file_get_contents('tokens/CIRCLECI_TOKEN'));
 
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s?circle-token=%s&limit=1&filter=completed', $repo, $circleci_token));
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception('Error reading build from CircleCI');
-
-  return json_decode($data);
+  $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s?circle-token=%s&limit=1&filter=completed', $repo, $circleci_token);
+  return get_url($url, $cache, 60);
 }
 
-function get_latest_distribution_pypi($repo) {
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('https://pypi.python.org/pypi/%s/json', str_replace('_', '-', $repo)));
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception('Error reading distribution info from PyPI');
-
-  return json_decode($data);
+function get_latest_distribution_pypi($repo, $cache) {
+  $url = sprintf('https://pypi.python.org/pypi/%s/json', str_replace('_', '-', $repo));
+  return get_url($url, $cache, 60);
 }
 
-function get_latest_distribution_ctan($repo) {
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('http://www.ctan.org/json/pkg/%s', $repo));
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception('Error reading distribution info from CTAN');
-
-  return json_decode($data);
+function get_latest_distribution_ctan($repo, $cache) {
+  $url = sprintf('http://www.ctan.org/json/pkg/%s', $repo);
+  return get_url($url, $cache, 60);
 }
 
-function get_latest_docs_rtd($repo) {
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('http://readthedocs.org/api/v1/version/%s/highest/?format=json', $repo));
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception('Error reading docs info from Read The Docs');
-
-  return json_decode($data);
+function get_latest_docs_rtd($repo, $cache) {
+  $url = sprintf('http://readthedocs.org/api/v1/version/%s/highest/?format=json', $repo);
+  return get_url($url, $cache, 60);
 }
 
-function get_latest_artifacts_circleci($repo, $build_num) {
+function get_latest_artifacts_circleci($repo, $build_num, $cache) {
   $circleci_token = rtrim(file_get_contents('tokens/CIRCLECI_TOKEN'));
 
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s/%d/artifacts?circle-token=%s',
-    $repo, $build_num, $circleci_token));
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception('Error reading build from CircleCI');
+  $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s/%d/artifacts?circle-token=%s',
+    $repo, $build_num, $circleci_token);
+  $data = get_url($url, $cache, 60);
 
   $docs_url = NULL;
-  foreach (json_decode($data) as $artifact) {
+  foreach ($data as $artifact) {
     if ($artifact->pretty_path == "\$CIRCLE_ARTIFACTS/docs/index.html") {
       $docs_url = $artifact->url;
       break;
@@ -342,34 +281,16 @@ function get_latest_artifacts_circleci($repo, $build_num) {
   );
 }
 
-function get_coverage_coveralls($repo, $token=NULL) {
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('https://coveralls.io/github/KarrLab/%s.json?repo_token=%s', $repo, $token));
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception('Error reading coverage info Coveralls');
-
-  return json_decode($data);
+function get_coverage_coveralls($repo, $token=NULL, $cache) {
+  $url = sprintf('https://coveralls.io/github/KarrLab/%s.json?repo_token=%s', $repo, $token);
+  return get_url($url, $cache, 60);
 }
 
-function get_analysis_codeclimate($token) {
+function get_analysis_codeclimate($token, $cache) {
   $codeclimate_api_token = rtrim(file_get_contents('tokens/CODECLIMATE_API_TOKEN'));
 
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, sprintf('https://codeclimate.com/api/repos/%s?api_token=%s', $token, $codeclimate_api_token));
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $data = curl_exec($ch);
-  $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  if ($httpcode<200 || $httpcode>=300)
-    throw new Exception('Error reading analysis info Code Climate');
-
-  return json_decode($data);
+  $url = sprintf('https://codeclimate.com/api/repos/%s?api_token=%s', $token, $codeclimate_api_token);
+  return get_url($url, $cache, 60);
 }
 
 $pkg_configs = scandir('repo');
@@ -383,11 +304,11 @@ foreach ($pkg_configs as $pkg_config) {
     $pkg = json_decode(fread($handle, filesize("repo/$pkg_config")));
     fclose($handle);
 
-    $source = get_source_github($pkg->id);
+    $source = get_source_github($pkg->id, $cache);
 
     if ($pkg->build && $pkg->build->circleci) {
-      $latest_build = get_latest_build_circleci($pkg->id)[0];
-      $artifacts = get_latest_artifacts_circleci($pkg->id, $latest_build->build_num);
+      $latest_build = get_latest_build_circleci($pkg->id, $cache)[0];
+      $artifacts = get_latest_artifacts_circleci($pkg->id, $latest_build->build_num, $cache);
     } else {
       $latest_build = NULL;
       $artifacts = array();
@@ -414,11 +335,11 @@ foreach ($pkg_configs as $pkg_config) {
       $dist_pkg_id = ($pkg->distribution->package ? $pkg->distribution->package : $pkg->id);
       switch ($pkg->distribution->repo) {
           case 'pypi':
-            $distribution = get_latest_distribution_pypi($dist_pkg_id);
+            $distribution = get_latest_distribution_pypi($dist_pkg_id, $cache);
             echo sprintf("<a href='https://pypi.python.org/pypi/%s'>%s</a>", $pkg->id, $distribution->info->version);
             break;
           case 'ctan':
-            $distribution = get_latest_distribution_ctan($dist_pkg_id);
+            $distribution = get_latest_distribution_ctan($dist_pkg_id, $cache);
             echo sprintf("<a href='https://www.ctan.org/pkg/%s'>%s</a>", $pkg->id, $distribution->version->number);
             break;
       }
@@ -463,7 +384,7 @@ foreach ($pkg_configs as $pkg_config) {
     #coverage
     echo "<td>";
     if ($pkg->test_coverage && $pkg->test_coverage->coveralls) {
-        $coverage = get_coverage_coveralls($pkg->id, $pkg->test_coverage->coveralls->token);
+        $coverage = get_coverage_coveralls($pkg->id, $pkg->test_coverage->coveralls->token, $cache);
         echo sprintf("<a href='https://coveralls.io/github/KarrLab/%s'>%.1f%%</a>", $pkg->id, $coverage->covered_percent);
     }
     echo "</td>\n";
@@ -476,7 +397,7 @@ foreach ($pkg_configs as $pkg_config) {
           $gpa = 'N/A';
         } else {
           $url = sprintf('https://codeclimate.com/repos/%s', $pkg->code_analysis->code_climate->token);
-          $analysis = get_analysis_codeclimate($pkg->code_analysis->code_climate->token);
+          $analysis = get_analysis_codeclimate($pkg->code_analysis->code_climate->token, $cache);
           $gpa = $analysis->last_snapshot->gpa;
         }
         echo sprintf("<a href='%s'>%s</a>", $url, $gpa);

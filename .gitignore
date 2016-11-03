@@ -3,3 +3,6 @@ tokens/
 
 # repository configurations
 repo/
+
+#cache
+*.cache
