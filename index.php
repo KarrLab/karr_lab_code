@@ -109,14 +109,6 @@
                                         <th colspan="1"></th>
                                     </tr>
                                     <tr>
-                                        <th colspan="10"></th>
-                                        <th>Views</th>
-                                        <th>Clones</th>
-                                        <th>GitHub</th>
-                                        <th>Dist</th>
-                                        <th>Forks</th>
-                                    </tr>
-                                    <tr>
                                         <th>Package</th>
                                         <th>Open?</th>
                                         <th>License</th>
@@ -127,11 +119,11 @@
                                         <th>Tests</th>
                                         <th>Coverage</th>
                                         <th>Analysis</th>
-                                        <th>/week</th>
-                                        <th>/week</th>
-                                        <th>/total</th>
-                                        <th>/mo</th>
-                                        <th>/total</th>
+                                        <th>Views</th>
+                                        <th>Clones</th>
+                                        <th>GitHub</th>
+                                        <th>Dist</th>
+                                        <th>Forks</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -193,7 +185,7 @@ function get_source_github($repo, $cache){
   $tags = array();
   foreach($data as $tag)
     array_push($tags, $tag->name);
-  rsort($tags);
+  rsort($tags, SORT_NATURAL | SORT_FLAG_CASE);
   $latest_tag = $tags[0];
 
   #views and clones
