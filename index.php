@@ -136,10 +136,11 @@ $cache = new Cache(array(
   'extension' => '.cache'
 ));
 
+$cache->eraseExpired();
 if ($_GET['erase_cache'])
   $cache->eraseAll();
 
-function get_url($url, $cache, $expiration=86400, $post=NULL, $username=NULL, $password=NULL, $token=NULL) {
+function get_url($url, $cache, $expiration=5*60, $post=NULL, $username=NULL, $password=NULL, $token=NULL) {
   $response = $cache->retrieve($url);
 
   if (is_null($response)) {
@@ -181,7 +182,7 @@ function get_source_github($repo, $cache){
 
   #latest release
   $url = sprintf('https://api.github.com/repos/KarrLab/%s/tags', $repo);
-  $data = get_url($url, $cache, 24*60*60, NULL, $username, $password);
+  $data = get_url($url, $cache, 5*60, NULL, $username, $password);
   $tags = array();
   foreach($data as $tag)
     array_push($tags, $tag->name);
@@ -243,17 +244,17 @@ function get_latest_build_circleci($repo, $cache){
 
 function get_latest_distribution_pypi($repo, $cache) {
   $url = sprintf('https://pypi.python.org/pypi/%s/json', str_replace('_', '-', $repo));
-  return get_url($url, $cache, 60);
+  return get_url($url, $cache, 24*60*60);
 }
 
 function get_latest_distribution_ctan($repo, $cache) {
   $url = sprintf('http://www.ctan.org/json/pkg/%s', $repo);
-  return get_url($url, $cache, 60);
+  return get_url($url, $cache, 24*60*60);
 }
 
 function get_latest_docs_rtd($repo, $cache) {
   $url = sprintf('http://readthedocs.org/api/v1/version/%s/highest/?format=json', $repo);
-  return get_url($url, $cache, 60);
+  return get_url($url, $cache, 5*60);
 }
 
 function get_latest_artifacts_circleci($repo, $build_num, $cache) {
