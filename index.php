@@ -266,7 +266,7 @@ function get_latest_artifacts_circleci($repo, $build_num, $cache) {
 
   $docs_url = NULL;
   foreach ($data as $artifact) {
-    if ($artifact->pretty_path == "/docs/index.html") {
+    if ($artifact->pretty_path == "docs/index.html") {
       $docs_url = $artifact->url;
       break;
     }

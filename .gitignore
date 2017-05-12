@@ -6,3 +6,6 @@ repo/
 
 #cache
 *.cache
+
+#data
+data/
