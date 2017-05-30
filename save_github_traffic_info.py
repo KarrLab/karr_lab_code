@@ -20,6 +20,9 @@ with open(os.path.join(TOKENS_DIR, 'GITHUB_PASSWORD'), 'r') as file:
 with open(os.path.join(TOKENS_DIR, 'GITHUB_ACCESS_TOKEN'), 'r') as file:
     GITHUB_ACCESS_TOKEN = file.read().rstrip()
 
+session = requests.Session()
+session.mount('https://api.github.com', requests.adapters.HTTPAdapter(max_retries=10))
+    
 #download view and clone counts
 for repo_config_filename in glob(os.path.join(REPOS_DIR, '*.json')):
     with open(repo_config_filename, 'r') as file:
@@ -53,7 +56,7 @@ for repo_config_filename in glob(os.path.join(REPOS_DIR, '*.json')):
     #clones
     url = 'https://api.github.com/repos/{}/{}/traffic/clones?per=day'.format(owner, repo)
 
-    r = requests.get(url,
+    r = session.get(url,
         headers={
             'Authorization': 'token {}'.format(GITHUB_ACCESS_TOKEN),
             'accept': 'application/vnd.github.spiderman-preview',
