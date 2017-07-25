@@ -248,7 +248,7 @@ function get_latest_distribution_pypi($repo, $cache) {
 }
 
 function get_latest_distribution_ctan($repo, $cache) {
-  $url = sprintf('http://www.ctan.org/json/pkg/%s', $repo);
+  $url = sprintf('https://www.ctan.org/json/pkg/%s', $repo);
   return get_url($url, $cache, 24*60*60);
 }
 
@@ -328,15 +328,15 @@ foreach ($pkg_configs as $pkg_config) {
     #distribution
     echo "<td>";
     if ($pkg->distribution) {
-      $dist_pkg_id = ($pkg->distribution->package ? $pkg->distribution->package : $pkg->id);
+      $dist_pkg_id = (property_exists($pkg->distribution, 'package') ? $pkg->distribution->package : $pkg->id);
       switch ($pkg->distribution->repo) {
           case 'pypi':
             $distribution = get_latest_distribution_pypi($dist_pkg_id, $cache);
-            echo sprintf("<a href='https://pypi.python.org/pypi/%s'>%s</a>", $pkg->id, $distribution->info->version);
+            echo sprintf("<a href='https://pypi.python.org/pypi/%s'>%s</a>", $dist_pkg_id, $distribution->info->version);
             break;
           case 'ctan':
             $distribution = get_latest_distribution_ctan($dist_pkg_id, $cache);
-            echo sprintf("<a href='https://www.ctan.org/pkg/%s'>%s</a>", $pkg->id, $distribution->version->number);
+            echo sprintf("<a href='https://www.ctan.org/pkg/%s'>%s</a>", $dist_pkg_id, $distribution->version->number);
             break;
       }
     }
