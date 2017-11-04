@@ -1,7 +1,2 @@
-<Files "*.php">
-Order Allow,Deny
-Allow from all
-</Files>
-
-Order Allow,Deny
-Deny from all
+Options -Indexes
+# Deny from all
