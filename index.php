@@ -253,7 +253,9 @@ function get_latest_distribution_ctan($repo, $cache) {
 }
 
 function get_latest_docs_rtd($repo, $cache) {
-  $url = sprintf('http://readthedocs.org/api/v1/version/%s/highest/?format=json', $repo);
+  # The API doesn't seem to return the status of builds
+  # See also http://docs.readthedocs.io/en/latest/api.html
+  $url = sprintf('http://readthedocs.org/api/v1/version/%s/?format=json', $repo);
   return get_url($url, $cache, 5*60);
 }
 
