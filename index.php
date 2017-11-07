@@ -137,7 +137,7 @@ $cache = new Cache(array(
 ));
 
 $cache->eraseExpired();
-if ($_GET['erase_cache'])
+if ($_GET['refresh'])
   $cache->eraseAll();
 
 function get_url($url, $cache, $expiration=5*60, $post=NULL, $username=NULL, $password=NULL, $token=NULL) {
@@ -390,7 +390,7 @@ foreach ($pkg_configs as $pkg_config) {
     if ($pkg->code_analysis && $pkg->code_analysis->code_climate){
         if ($pkg->code_analysis->code_climate->open_source) {
           $url = sprintf('https://codeclimate.com/github/KarrLab/%s', $pkg->id);
-          $gpa = 'N/A';
+          $gpa = '';
         } else {
           $url = sprintf('https://codeclimate.com/repos/%s', $pkg->code_analysis->code_climate->token);
           $analysis = get_analysis_codeclimate($pkg->code_analysis->code_climate->token, $cache);
