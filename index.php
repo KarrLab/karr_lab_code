@@ -40,7 +40,7 @@
                 whitespace: nowrap;
             }
 
-            a.alert {
+            tr.alert td, tr.alert td a{
               color:red;
             }
         </style>
@@ -313,7 +313,10 @@ foreach ($pkg_configs as $pkg_config) {
     }
 
     #start row
-    echo "<tr>\n";
+    if ($pkg->build && $pkg->build->circleci && $latest_build->status != 'fixed' && $latest_build->status != 'success')
+        echo "<tr class='alert'>";
+    else
+        echo "<tr>";
 
     #name
     echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n", $pkg->id, $pkg->id);
@@ -367,10 +370,8 @@ foreach ($pkg_configs as $pkg_config) {
     #build
     echo "<td>";
     if ($pkg->build && $pkg->build->circleci)
-        echo sprintf("<a href='https://circleci.com/gh/KarrLab/%s' class='%s'>%s</a>",
-          $pkg->id,
-          ($latest_build->status == 'fixed' || $latest_build->status == 'success' ? '' : 'alert'),
-          ucfirst($latest_build->status));
+        echo sprintf("<a href='https://circleci.com/gh/KarrLab/%s'>%s</a>",
+          $pkg->id, ucfirst($latest_build->status));
     echo "</td>\n";
 
     #tests results
