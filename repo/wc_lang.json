@@ -1,0 +1,27 @@
+{
+  "id": "wc_lang",
+  "type": "Cell modeling and simulation tools",
+  "description": "Data-driven, rule-based language for describing whole-cell models",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": true
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

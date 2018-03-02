@@ -1,0 +1,27 @@
+{
+  "id": "h1_hesc",
+  "type": "Cell models",
+  "description": "Whole-cell model of H1-hESCs",
+  "availability": "Closed",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": false
+  },
+  "build": {
+    "circleci": {
+      "token": "fbe912a682a35388590f0d0fa13c9ea62a538fd4"
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": "WiHWfOkCWyJzJlOLIdvv5YVSx7GCXJ8Qt"
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "token": "5a0221e9626f38028a0002c5"
+    }
+  }
+}

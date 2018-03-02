@@ -1,0 +1,15 @@
+{
+  "id": "SynNetGen",
+  "type": "Cell models",
+  "description": "Software to generate synthetic dynamic transcriptomic and proteomic data",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "url": "https://github.com/KarrLab/SynNetGen"
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

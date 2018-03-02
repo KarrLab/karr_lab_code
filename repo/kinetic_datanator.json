@@ -1,0 +1,29 @@
+{
+  "id": "kinetic_datanator",
+  "type": "Cell modeling and simulation tools",
+  "description": "Finds the most relevant kinetic data for biochemical models",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": {
+      "id": "kinetic_datanator"
+    }
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

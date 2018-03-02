@@ -1,0 +1,29 @@
+{
+  "id": "misc_temp_code",
+  "type": "Other",
+  "description": "Miscellaneous code",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": {
+      "id": "misc-temp-code"
+    }
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

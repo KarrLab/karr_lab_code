@@ -1,0 +1,27 @@
+{
+  "id": "wc_utils",
+  "type": "Cell modeling and simulation tools",
+  "description": "Whole-cell modeling utilities",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": true
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

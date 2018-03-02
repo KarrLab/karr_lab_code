@@ -1,0 +1,11 @@
+{
+  "id": "paper_2018_curr_opin_biotechnol",
+  "type": "Code used for papers",
+  "description": "Code associated with the Karr Lab's 2018 whole-cell modeling review in Current Opinion in Biotechnology",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": false
+  },
+  "test_results": false
+}

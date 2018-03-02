@@ -1,0 +1,32 @@
+{
+  "id": "conv_opt",
+  "type": "Modeling and simulation tools",
+  "description": "High-level Python package for solving linear and quadratic optimization problems using multiple open-source and commercials solvers",
+  "availability": "Open",
+  "license": "MIT",
+  "distribution": {
+    "repo": "pypi"
+  },
+  "docs": {
+    "readthedocs": {
+      "id": "conv_opt"
+    }
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

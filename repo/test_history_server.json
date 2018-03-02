@@ -1,0 +1,15 @@
+{
+  "id": "test_history_server",
+  "type": "Software development tools",
+  "description": "Unit test history server (<a href='http://tests.karrlab.org'>tests.karrlab.org</a>)",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

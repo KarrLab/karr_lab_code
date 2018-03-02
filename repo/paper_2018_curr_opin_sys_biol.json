@@ -1,0 +1,11 @@
+{
+  "id": "paper_2018_curr_opin_sys_biol",
+  "type": "Code used for papers",
+  "description": "Code associated with our 2018 review in Current Opinion in Systems Biology",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": false
+  },
+  "test_results": false
+}

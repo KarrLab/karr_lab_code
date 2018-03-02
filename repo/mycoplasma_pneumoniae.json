@@ -1,0 +1,27 @@
+{
+  "id": "mycoplasma_pneumoniae",
+  "type": "Cell models",
+  "description": "Whole-cell model of the reduced gram-positive pathogenic bacterium <i>Mycoplasma pneumoniae</i>",
+  "availability": "Closed",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": false
+  },
+  "build": {
+    "circleci": {
+      "token": "7c5021e2d044f8553b0230045c4ded314d70747b"
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": "lU4UF7KERFgiOiMCqKnNJkCHjBqhV7Lk9"
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "token": "57ab5de1d544216f7d000615"
+    }
+  }
+}

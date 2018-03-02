@@ -1,0 +1,30 @@
+{
+  "id": "nose2unitth",
+  "type": "Software development tools",
+  "description": "Converts nose-style XML test reports to <a href=\"http://junitth.sourceforge.net\">UnitTH</a>-style XML test reports",
+  "availability": "Open",
+  "license": "MIT",
+  "distribution": {
+    "repo": "pypi"
+  },
+  "docs": {
+    "readthedocs": true
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

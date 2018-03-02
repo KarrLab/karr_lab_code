@@ -1,0 +1,8 @@
+{
+  "id": "minicell_website",
+  "type": "Other",
+  "description": "Code for the MiniCell consortium website (<a href='http://www.minicell.org'>minicell.org</a>)",
+  "availability": "Open",
+  "license": "MIT",
+  "test_results": false
+}

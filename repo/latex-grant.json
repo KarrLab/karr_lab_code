@@ -1,0 +1,15 @@
+{
+  "id": "latex-grant",
+  "type": "Other scientific and software tools",
+  "description": "LaTeX classes for federal grant applications",
+  "availability": "Open",
+  "license": "MIT",
+  "distribution": {
+    "repo": "ctan",
+    "package": "grant"
+  },
+  "docs": {
+    "url": "https://github.com/KarrLab/latex-grant"
+  },
+  "test_results": false
+}

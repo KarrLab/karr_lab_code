@@ -1,0 +1,8 @@
+{
+  "id": "karr_lab_website",
+  "type": "Karr Lab utilities",
+  "description": "Code for Karr Lab website (<a href='http://www.karrlab.org'>karrlab.org</a>)",
+  "availability": "Open",
+  "license": "MIT",
+  "test_results": false
+}

@@ -1,0 +1,29 @@
+{
+  "id": "datanator_website",
+  "type": "Cell modeling and simulation tools",
+  "description": "Web interface for kinetic_datantor",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": {
+      "id": "datanator_website"
+    }
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "id": "pkg_utils",
+  "type": "Software development tools",
+  "description": "Utilities for linking setuptools with package version metadata, GitHub README.md files, requirements.txt files, and restoring overridden entry points during for editable installations",
+  "availability": "Open",
+  "license": "MIT",
+  "distribution": {
+    "repo": "pypi"
+  },
+  "docs": {
+    "readthedocs": {
+      "id": "pkg_utils"
+    }
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

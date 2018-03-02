@@ -1,0 +1,27 @@
+{
+  "id": "karr_lab_build_utils",
+  "type": "Karr Lab utilities",
+  "description": "Utility functions for building, testing, and documenting software",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": true
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

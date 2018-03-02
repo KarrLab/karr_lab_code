@@ -1,0 +1,30 @@
+{
+  "id": "unitth",
+  "type": "Software development tools",
+  "description": "Generate HTML test history report",
+  "availability": "Open",
+  "license": "MIT",
+  "distribution": {
+    "repo": "pypi"
+  },
+  "docs": {
+    "readthedocs": true
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

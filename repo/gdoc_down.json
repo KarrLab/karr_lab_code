@@ -1,0 +1,32 @@
+{
+  "id": "gdoc_down",
+  "type": "Other scientific and software tools",
+  "description": "Command line programs to save Google documents to files",
+  "availability": "Open",
+  "license": "MIT",
+  "distribution": {
+    "repo": "pypi"
+  },
+  "docs": {
+    "readthedocs": {
+      "id": "gdoc-down"
+    }
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}
