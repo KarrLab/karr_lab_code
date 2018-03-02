@@ -150,7 +150,8 @@ $types = array(
     'Other scientific and software tools',
     'Karr Lab utilities',
     'Training materials',
-    'Code used for papers'
+    'Code used for papers',
+    'Other'
     );
 
 $pkg_ids = scandir('repo');
