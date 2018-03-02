@@ -26,18 +26,29 @@
                 width:100%;
             }
             #code th {
-                background:#d9d9d9;
+                background:#999;
             }
             #code th,
             #code td {
                 text-align:center;
                 padding-left:2px;
                 padding-right:2px;
+                padding-top:4px;
+                padding-bottom:4px;
             }
             #code th:first-child,
             #code td:first-child{
                 text-align:left;
                 whitespace: nowrap;
+            }
+            
+            #code tr.margin th {
+                background:none;
+                height:30px;
+            }
+            #code tr.type th {
+                background:#d9d9d9;
+                margin-top:10px;
             }
 
             tr.alert td, tr.alert td a{
@@ -131,152 +142,184 @@
 
 require 'functions.php';
 
-$pkg_configs = scandir('repo');
-sort($pkg_configs, SORT_NATURAL | SORT_FLAG_CASE);
+$types = array(
+    'Cell models', 
+    'Cell modeling and simulation tools', 
+    'Modeling and simulation tools',
+    'Software development tools',
+    'Other scientific and software tools',
+    'Karr Lab utilities',
+    'Training materials',
+    'Code used for papers'
+    );
 
-foreach ($pkg_configs as $pkg_config) {
-    if (pathinfo($pkg_config, PATHINFO_EXTENSION) != 'json')
+$pkg_ids = scandir('repo');
+$pkg_configs = array();
+foreach ($pkg_ids as $pkg_id) {
+    if (pathinfo($pkg_id, PATHINFO_EXTENSION) != 'json')
       continue;
-
-    $handle = fopen("repo/$pkg_config", "r");
-    $pkg = json_decode(fread($handle, filesize("repo/$pkg_config")));
+  
+    $handle = fopen("repo/$pkg_id", "r");
+    $pkg = json_decode(fread($handle, filesize("repo/$pkg_id")));
     fclose($handle);
-
-    $source = get_source_github($pkg->id, $cache);
-
-    if ($pkg->build && $pkg->build->circleci) {
-      $latest_build = get_latest_build_circleci($pkg->id, $cache)[0];
-      $artifacts = get_latest_artifacts_circleci($pkg->id, $latest_build->build_num, $cache);
+    
+    if (property_exists($pkg, 'type')) {
+        $type = $pkg->type;
     } else {
-      $latest_build = NULL;
-      $artifacts = array();
+        $type = 'Other';        
     }
-
-    #start row
-    if ($pkg->build && $pkg->build->circleci && $latest_build->status != 'fixed' && $latest_build->status != 'success')
-        echo "<tr class='alert'>";
-    else
-        echo "<tr>";
-
-    #name
-    echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n", $pkg->id, $pkg->id);
-
-    #status
-    echo sprintf("<td>%s</td>\n", $pkg->availability);
-
-    #license
-    echo "<td>";
-    if ($pkg->license)
-      echo sprintf("<a href='https://github.com/KarrLab/%s/blob/master/LICENSE'>%s</a>", $pkg->id, $pkg->license);
-    echo "</td>";
-
-    #distribution
-    echo "<td>";
-    if ($pkg->distribution) {
-      $dist_pkg_id = (property_exists($pkg->distribution, 'package') ? $pkg->distribution->package : $pkg->id);
-      switch ($pkg->distribution->repo) {
-          case 'pypi':
-            $distribution = get_latest_distribution_pypi($dist_pkg_id, $cache);
-            echo sprintf("<a href='https://pypi.python.org/pypi/%s'>%s</a>", $dist_pkg_id, $distribution->info->version);
-            break;
-          case 'ctan':
-            $distribution = get_latest_distribution_ctan($dist_pkg_id, $cache);
-            echo sprintf("<a href='https://www.ctan.org/pkg/%s'>%s</a>", $dist_pkg_id, $distribution->version->number);
-            break;
-      }
+    
+    if (!array_key_exists($type, $pkg_configs)) {
+        $pkg_configs[$type] = array();
     }
-    echo "</td>\n";
+    $pkg_configs[$type][$pkg->id] = $pkg;
+}
 
-    #source code
-    echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n",
-      $pkg->id, ($source['latest_tag'] ? $source['latest_tag'] : 'Latest'));
+foreach ($types as $type) {
+    echo "<tr class='margin'><th colspan='15'></th></tr>\n";
+    echo "<tr class='type'><th colspan='15'>$type</th></tr>\n";
+    
+    $pkg_ids = array_keys($pkg_configs[$type]);
+    sort($pkg_ids, SORT_NATURAL | SORT_FLAG_CASE);    
 
-    #documentation
-    echo "<td>";
-    if ($pkg->docs && $pkg->docs->readthedocs) {
-        $docs_pkg_id = ($pkg->docs->readthedocs->id ? $pkg->docs->readthedocs->id : $pkg->id);
-        $docs_url = sprintf('http://%s.readthedocs.org', $docs_pkg_id);
-    } elseif ($pkg->docs && $pkg->docs->url) {
-        $docs_url = $pkg->docs->url;
-    } elseif ($artifacts['docs']) {
-        $docs_url = "view_docs.php?package=".$pkg->id;
-    } else {
-        $docs_url = NULL;
-    }
-    if ($docs_url)
-        echo "<a href='$docs_url'>Latest</a>";
-    echo "</td>\n";
+    foreach ($pkg_ids as $pkg_id) {
+        $pkg = $pkg_configs[$type][$pkg_id];
+        $source = get_source_github($pkg->id, $cache);
 
-    #build
-    echo "<td>";
-    if ($pkg->build && $pkg->build->circleci)
-        echo sprintf("<a href='https://circleci.com/gh/KarrLab/%s'>%s</a>",
-          $pkg->id, ucfirst($latest_build->status));
-    echo "</td>\n";
-
-    #tests results
-    echo "<td>";
-    if ($pkg->test_results)
-        echo sprintf("<a href='http://tests.karrlab.org/KarrLab/%s'>Results</a>", $pkg->id);
-    echo "</td>\n";
-
-    #coverage
-    echo "<td>";
-    if ($pkg->test_coverage && $pkg->test_coverage->coveralls) {
-        $coverage = get_coverage_coveralls($pkg->id, $pkg->test_coverage->coveralls->token, $cache);
-        echo sprintf("<a href='https://coveralls.io/github/KarrLab/%s'>%.1f%%</a>", $pkg->id, $coverage->covered_percent);
-    }
-    echo "</td>\n";
-
-    #analysis
-    echo "<td>";
-    if ($pkg->code_analysis && $pkg->code_analysis->code_climate){
-        if ($pkg->code_analysis->code_climate->open_source) {
-          $url = sprintf('https://codeclimate.com/github/KarrLab/%s', $pkg->id);
-          $gpa = '';
+        if ($pkg->build && $pkg->build->circleci) {
+          $latest_build = get_latest_build_circleci($pkg->id, $cache)[0];
+          $artifacts = get_latest_artifacts_circleci($pkg->id, $latest_build->build_num, $cache);
         } else {
-          $url = sprintf('https://codeclimate.com/repos/%s', $pkg->code_analysis->code_climate->token);
-          $analysis = get_analysis_codeclimate($pkg->code_analysis->code_climate->token, $cache);
-          $gpa = $analysis->last_snapshot->gpa;
+          $latest_build = NULL;
+          $artifacts = array();
         }
-        echo sprintf("<a href='%s'>%s</a>", $url, $gpa);
+
+        #start row
+        if ($pkg->build && $pkg->build->circleci && $latest_build->status != 'fixed' && $latest_build->status != 'success')
+            echo "<tr class='alert'>";
+        else
+            echo "<tr>";
+
+        #name
+        echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n", $pkg->id, $pkg->id);
+
+        #status
+        echo sprintf("<td>%s</td>\n", $pkg->availability);
+
+        #license
+        echo "<td>";
+        if ($pkg->license)
+          echo sprintf("<a href='https://github.com/KarrLab/%s/blob/master/LICENSE'>%s</a>", $pkg->id, $pkg->license);
+        echo "</td>";
+
+        #distribution
+        echo "<td>";
+        if ($pkg->distribution) {
+          $dist_pkg_id = (property_exists($pkg->distribution, 'package') ? $pkg->distribution->package : $pkg->id);
+          switch ($pkg->distribution->repo) {
+              case 'pypi':
+                $distribution = get_latest_distribution_pypi($dist_pkg_id, $cache);
+                echo sprintf("<a href='https://pypi.python.org/pypi/%s'>%s</a>", $dist_pkg_id, $distribution->info->version);
+                break;
+              case 'ctan':
+                $distribution = get_latest_distribution_ctan($dist_pkg_id, $cache);
+                echo sprintf("<a href='https://www.ctan.org/pkg/%s'>%s</a>", $dist_pkg_id, $distribution->version->number);
+                break;
+          }
+        }
+        echo "</td>\n";
+
+        #source code
+        echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n",
+          $pkg->id, ($source['latest_tag'] ? $source['latest_tag'] : 'Latest'));
+
+        #documentation
+        echo "<td>";
+        if ($pkg->docs && $pkg->docs->readthedocs) {
+            $docs_pkg_id = ($pkg->docs->readthedocs->id ? $pkg->docs->readthedocs->id : $pkg->id);
+            $docs_url = sprintf('http://%s.readthedocs.org', $docs_pkg_id);
+        } elseif ($pkg->docs && $pkg->docs->url) {
+            $docs_url = $pkg->docs->url;
+        } elseif ($artifacts['docs']) {
+            $docs_url = "view_docs.php?package=".$pkg->id;
+        } else {
+            $docs_url = NULL;
+        }
+        if ($docs_url)
+            echo "<a href='$docs_url'>Latest</a>";
+        echo "</td>\n";
+
+        #build
+        echo "<td>";
+        if ($pkg->build && $pkg->build->circleci)
+            echo sprintf("<a href='https://circleci.com/gh/KarrLab/%s'>%s</a>",
+              $pkg->id, ucfirst($latest_build->status));
+        echo "</td>\n";
+
+        #tests results
+        echo "<td>";
+        if ($pkg->test_results)
+            echo sprintf("<a href='http://tests.karrlab.org/KarrLab/%s'>Results</a>", $pkg->id);
+        echo "</td>\n";
+
+        #coverage
+        echo "<td>";
+        if ($pkg->test_coverage && $pkg->test_coverage->coveralls) {
+            $coverage = get_coverage_coveralls($pkg->id, $pkg->test_coverage->coveralls->token, $cache);
+            echo sprintf("<a href='https://coveralls.io/github/KarrLab/%s'>%.1f%%</a>", $pkg->id, $coverage->covered_percent);
+        }
+        echo "</td>\n";
+
+        #analysis
+        echo "<td>";
+        if ($pkg->code_analysis && $pkg->code_analysis->code_climate){
+            if ($pkg->code_analysis->code_climate->open_source) {
+              $url = sprintf('https://codeclimate.com/github/KarrLab/%s', $pkg->id);
+              $gpa = '';
+            } else {
+              $url = sprintf('https://codeclimate.com/repos/%s', $pkg->code_analysis->code_climate->token);
+              $analysis = get_analysis_codeclimate($pkg->code_analysis->code_climate->token, $cache);
+              $gpa = $analysis->last_snapshot->gpa;
+            }
+            echo sprintf("<a href='%s'>%s</a>", $url, $gpa);
+        }
+        echo "</td>\n";
+
+        #views
+        echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
+          $pkg->id, $source['views']);
+
+        #clones
+        echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
+          $pkg->id, $source['clones']);
+
+        #downloads
+        echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
+          $pkg->id, $source['downloads']);
+
+        echo "<td>";
+        if ($pkg->distribution && $pkg->distribution->repo == 'pypi') {
+          $dist_pkg_id = ($pkg->distribution->package ? $pkg->distribution->package : $pkg->id);
+
+          $downloads = 0;
+          foreach($distribution->releases as $release)
+            foreach($release as $file)
+              $downloads += $file->downloads;
+
+          echo sprintf("<a href='https://pypi.python.org/pypi/%s'>%d</a>", $pkg->id, $downloads);
+        }
+        echo "</td>\n";
+
+        #forks
+        echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
+          $pkg->id, $source['forks']);
+
+        #end row
+        echo "</tr>\n";
+        echo "<tr>\n";
+        echo sprintf("<td colspan='15'>%s</td>\n", $pkg->description);
+        echo "</tr>\n";
     }
-    echo "</td>\n";
-
-    #views
-    echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
-      $pkg->id, $source['views']);
-
-    #clones
-    echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
-      $pkg->id, $source['clones']);
-
-    #downloads
-    echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
-      $pkg->id, $source['downloads']);
-
-    echo "<td>";
-    if ($pkg->distribution && $pkg->distribution->repo == 'pypi') {
-      $dist_pkg_id = ($pkg->distribution->package ? $pkg->distribution->package : $pkg->id);
-
-      $downloads = 0;
-      foreach($distribution->releases as $release)
-        foreach($release as $file)
-          $downloads += $file->downloads;
-
-      echo sprintf("<a href='https://pypi.python.org/pypi/%s'>%d</a>", $pkg->id, $downloads);
-    }
-    echo "</td>\n";
-
-    #forks
-    echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
-      $pkg->id, $source['forks']);
-
-    #end row
-    echo "</tr>\n";
-    echo "<tr>\n";
-    echo sprintf("<td colspan='15'>%s</td>\n", $pkg->description);
-    echo "</tr>\n";
 }
 ?>
                                 </tbody>
