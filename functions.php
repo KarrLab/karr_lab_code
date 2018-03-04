@@ -2,164 +2,252 @@
 
 require_once('lib/Simple-PHP-Cache-1.6/cache.class.php');
 $cache = new Cache(array(
-  'name'      => 'index',
-  'path'      => '.',
-  'extension' => '.cache'
+    'name'      => 'index',
+    'path'      => 'cache/',
+    'extension' => '.cache'
 ));
 
 $cache->eraseExpired();
 if ($_GET['refresh'])
-  $cache->eraseAll();
+    $cache->eraseAll();
 
 function get_url($url, $cache, $expiration=5*60, $post=NULL, $username=NULL, $password=NULL, $token=NULL) {
-  $response = $cache->retrieve($url);
+    $response = $cache->retrieve($url);
 
-  if (is_null($response)) {
-    $user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36';
+    if (is_null($response)) {
+        $user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36';
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    if ($token)
-      curl_setopt($ch, CURLOPT_HTTPHEADER, array(sprintf('Authorization: token %s', $token)));
-    if ($post) {
-      curl_setopt($ch, CURLOPT_POST, true);
-      curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        if ($token)
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(sprintf('Authorization: token %s', $token)));
+        if ($post) {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
+        }
+        if ($username && $password)
+            curl_setopt($ch, CURLOPT_USERPWD, $username.':'.$password);
+        curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $response = json_decode(curl_exec($ch));
+
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpcode < 200 || $httpcode >= 300)
+            throw new Exception(sprintf('Error reading URL: %s', $url));
+
+        $cache->store($url, $response, $expiration);
     }
-    if ($username && $password)
-      curl_setopt($ch, CURLOPT_USERPWD, $username.':'.$password);
-    curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-    $response = json_decode(curl_exec($ch));
-
-    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($httpcode < 200 || $httpcode >= 300)
-      throw new Exception(sprintf('Error reading URL: %s', $url));
-
-    $cache->store($url, $response, $expiration);
-  }
-
-  return $response;
+    return $response;
 }
 
 function get_source_github($repo, $cache){
-  $username = rtrim(file_get_contents('tokens/GITHUB_USERNAME'));
-  $password = rtrim(file_get_contents('tokens/GITHUB_PASSWORD'));
-  $client_id = rtrim(file_get_contents('tokens/GITHUB_CLIENT_ID'));
-  $client_secret = rtrim(file_get_contents('tokens/GITHUB_CLIENT_SECRET'));
-  $user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36';
+    $username = rtrim(file_get_contents('tokens/GITHUB_USERNAME'));
+    $password = rtrim(file_get_contents('tokens/GITHUB_PASSWORD'));
+    $client_id = rtrim(file_get_contents('tokens/GITHUB_CLIENT_ID'));
+    $client_secret = rtrim(file_get_contents('tokens/GITHUB_CLIENT_SECRET'));
+    $user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36';
 
-  #latest release
-  $url = sprintf('https://api.github.com/repos/KarrLab/%s/tags', $repo);
-  $data = get_url($url, $cache, 5*60, NULL, $username, $password);
-  $tags = array();
-  foreach($data as $tag)
-    array_push($tags, $tag->name);
-  rsort($tags, SORT_NATURAL | SORT_FLAG_CASE);
-  $latest_tag = $tags[0];
+    #latest release
+    $url = sprintf('https://api.github.com/repos/KarrLab/%s/tags', $repo);
+    $data = get_url($url, $cache, 5*60, NULL, $username, $password);
+    $tags = array();
+    foreach($data as $tag)
+        array_push($tags, $tag->name);
+    rsort($tags, SORT_NATURAL | SORT_FLAG_CASE);
+    $latest_tag = $tags[0];
 
-  #views and clones
-  $views = 0;
-  $clones = 0;
-  $unique_views = 0;
-  $unique_clones = 0;
+    #views and clones
+    $views = 0;
+    $clones = 0;
+    $unique_views = 0;
+    $unique_clones = 0;
 
-  $stats_filename = sprintf('repo/%s.stats.tsv', $repo);
-  if (file_exists($stats_filename)) {
-    $fp = fopen($stats_filename, 'r');
-    if (!feof($fp))
-      $line = fgets($fp); #header
-    while (!feof($fp)) {
-        $line = rtrim(fgets($fp));
-        $data = preg_split('/\t/', $line);
-        $views += $data[1];
-        $unique_views += $data[2];
-        $clones += $data[3];
-        $unique_clones += $data[4];
+    $stats_filename = sprintf('repo/%s.stats.tsv', $repo);
+    if (file_exists($stats_filename)) {
+        $fp = fopen($stats_filename, 'r');
+        if (!feof($fp))
+            $line = fgets($fp); #header
+        while (!feof($fp)) {
+            $line = rtrim(fgets($fp));
+            $data = preg_split('/\t/', $line);
+            $views += $data[1];
+            $unique_views += $data[2];
+            $clones += $data[3];
+            $unique_clones += $data[4];
+        }
+        fclose($fp);
     }
-    fclose($fp);
-  }
 
-  #downloads
-  $url = sprintf('https://api.github.com/repos/KarrLab/%s/releases', $repo);
-  $data = get_url($url, $cache, 24*60*60, NULL, $username, $password);
-  $downloads = 0;
-  foreach ($data as $release)
-    $downloads += $release->assets->download_count;
+    #downloads
+    $url = sprintf('https://api.github.com/repos/KarrLab/%s/releases', $repo);
+    $data = get_url($url, $cache, 24*60*60, NULL, $username, $password);
+    $downloads = 0;
+    foreach ($data as $release)
+        $downloads += $release->assets->download_count;
 
-  #forks
-  $url = sprintf('https://api.github.com/repos/KarrLab/%s/forks', $repo);
-  $data = get_url($url, $cache, 24*60*60, NULL, $username, $password);
-  $forks = count($data);
+    #forks
+    $url = sprintf('https://api.github.com/repos/KarrLab/%s/forks', $repo);
+    $data = get_url($url, $cache, 24*60*60, NULL, $username, $password);
+    $forks = count($data);
 
-  #return info
-  return array(
-    'latest_tag' => $latest_tag,
-    'views' => $views,
-    'unique_views' => $unique_views,
-    'downloads' => $downloads,
-    'clones' => $clones,
-    'unique_clones' => $unique_clones,
-    'forks' => $forks,
-  );
+    #return info
+    return array(
+        'latest_tag' => $latest_tag,
+        'views' => $views,
+        'unique_views' => $unique_views,
+        'downloads' => $downloads,
+        'clones' => $clones,
+        'unique_clones' => $unique_clones,
+        'forks' => $forks,
+    );
 }
 
 function get_latest_build_circleci($repo, $cache){
-  $circleci_token = rtrim(file_get_contents('tokens/CIRCLECI_TOKEN'));
+    $circleci_token = rtrim(file_get_contents('tokens/CIRCLECI_TOKEN'));
 
-  $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s?circle-token=%s&limit=1&filter=completed', $repo, $circleci_token);
-  return get_url($url, $cache, 60);
+    $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s?circle-token=%s&limit=1&filter=completed', $repo, $circleci_token);
+    return get_url($url, $cache, 60);
+}
+
+function get_tests_circleci($repo, $build_num, $cache){
+    $circleci_token = rtrim(file_get_contents('tokens/CIRCLECI_TOKEN'));
+
+    $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s/%d/tests?circle-token=%s', $repo, $build_num, $circleci_token);
+    $data = get_url($url, $cache, 60);
+
+    $passes = 0;
+    $skips = 0;
+    $errors = 0;
+    $failures = 0;
+    foreach ($data->tests as $test) {
+        if ($test->result == 'success') {
+            $passes++;
+        } elseif ($test->result == 'skipped') {
+            $skips++;
+        }elseif ($test->result == 'error') {
+            $errors++;
+        } elseif ($test->result == 'failure') {
+            $failures++;
+        }
+    }
+    $total = $passes + $skips + $errors + $failures;
+
+    $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s/%d/artifacts?circle-token=%s', $repo, $build_num, $circleci_token);
+    $data = get_url($url, $cache, 60);
+    $py2 = false;
+    $py3 = false;
+    foreach ($data as $artifact) {
+        if (strpos($artifact->pretty_path, '.coverage.') === 0) {
+            $tmp = explode('.', $artifact->pretty_path);
+            if ($tmp[2] == 2)
+                $py_2 = true;
+            elseif ($tmp[2] == 3)
+                $py_3 = true;
+        }
+    }
+
+    return array(
+        'py_2' => $py_2,
+        'py_3' => $py_3,
+        'total' => $total,
+        'passes' => $passes,
+        'skips' => $skips,
+        'errors' => $errors,
+        'failures' => $failures,
+        'others' => $others
+        );
 }
 
 function get_latest_distribution_pypi($repo, $cache) {
-  $url = sprintf('https://pypi.python.org/pypi/%s/json', str_replace('_', '-', $repo));
-  return get_url($url, $cache, 24*60*60);
+    $url = sprintf('https://pypi.python.org/pypi/%s/json', str_replace('_', '-', $repo));
+    return get_url($url, $cache, 24*60*60);
 }
 
 function get_latest_distribution_ctan($repo, $cache) {
-  $url = sprintf('https://www.ctan.org/json/pkg/%s', $repo);
-  return get_url($url, $cache, 24*60*60);
+    $url = sprintf('https://www.ctan.org/json/pkg/%s', $repo);
+    return get_url($url, $cache, 24*60*60);
 }
 
 function get_latest_docs_rtd($repo, $cache) {
-  # The API doesn't seem to return the status of builds
-  # See also http://docs.readthedocs.io/en/latest/api.html
-  $url = sprintf('http://readthedocs.org/api/v1/version/%s/?format=json', $repo);
-  return get_url($url, $cache, 5*60);
+    # The API doesn't seem to return the status of builds
+    # See also http://docs.readthedocs.io/en/latest/api.html
+    $url = sprintf('http://readthedocs.org/api/v1/version/%s/?format=json', $repo);
+    return get_url($url, $cache, 5*60);
 }
 
-function get_latest_artifacts_circleci($repo, $build_num, $cache) {
-  $circleci_token = rtrim(file_get_contents('tokens/CIRCLECI_TOKEN'));
+function get_artifacts_circleci($repo, $build_num, $cache) {
+    $circleci_token = rtrim(file_get_contents('tokens/CIRCLECI_TOKEN'));
 
-  $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s/%d/artifacts?circle-token=%s',
-    $repo, $build_num, $circleci_token);
-  $data = get_url($url, $cache, 60);
+    $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s/%d/artifacts?circle-token=%s',
+        $repo, $build_num, $circleci_token);
+    $data = get_url($url, $cache, 60);
 
-  $docs_url = NULL;
-  foreach ($data as $artifact) {
-    if ($artifact->pretty_path == "docs/index.html") {
-      $docs_url = $artifact->url;
-      break;
+    $docs_url = NULL;
+    foreach ($data as $artifact) {
+        if ($artifact->pretty_path == "docs/index.html") {
+            $docs_url = $artifact->url;
+            break;
+        }
     }
-  }
 
-  return array(
-    'docs' => $docs_url,
-  );
+    return array(
+        'docs' => $docs_url,
+    );
 }
 
 function get_coverage_coveralls($repo, $token=NULL, $cache) {
-  $url = sprintf('https://coveralls.io/github/KarrLab/%s.json?repo_token=%s', $repo, $token);
-  return get_url($url, $cache, 60);
+    $url = sprintf('https://coveralls.io/github/KarrLab/%s.json?repo_token=%s', $repo, $token);
+    return get_url($url, $cache, 60);
 }
 
 function get_analysis_codeclimate($token, $cache) {
-  $codeclimate_api_token = rtrim(file_get_contents('tokens/CODECLIMATE_API_TOKEN'));
+    $codeclimate_api_token = rtrim(file_get_contents('tokens/CODECLIMATE_API_TOKEN'));
 
-  $url = sprintf('https://codeclimate.com/api/repos/%s?api_token=%s', $token, $codeclimate_api_token);
-  return get_url($url, $cache, 60);
+    $url = sprintf('https://codeclimate.com/api/repos/%s?api_token=%s', $token, $codeclimate_api_token);
+    return get_url($url, $cache, 60);
+}
+
+function get_package_types() {
+    return array(
+        'Cell models',
+        'Cell modeling and simulation tools',
+        'Modeling and simulation tools',
+        'Software development tools',
+        'Other scientific and software tools',
+        'Karr Lab utilities',
+        'Training materials',
+        'Code used for papers',
+        'Other'
+        );
+}
+
+function get_packages() {
+    $pkg_ids = scandir('repo');
+    $pkg_configs = array();
+    foreach ($pkg_ids as $pkg_id) {
+        if (pathinfo($pkg_id, PATHINFO_EXTENSION) != 'json')
+          continue;
+
+        $handle = fopen("repo/$pkg_id", "r");
+        $pkg = json_decode(fread($handle, filesize("repo/$pkg_id")));
+        fclose($handle);
+
+        if (property_exists($pkg, 'type')) {
+            $type = $pkg->type;
+        } else {
+            $type = 'Other';
+        }
+
+        if (!array_key_exists($type, $pkg_configs)) {
+            $pkg_configs[$type] = array();
+        }
+        $pkg_configs[$type][$pkg->id] = $pkg;
+    }
+    return $pkg_configs;
 }
 
 ?>

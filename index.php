@@ -7,8 +7,8 @@
       	<meta name="description" content="The Karr Lab is a computational systems biology research lab at the Icahn School of Medicine at Mount Sinai." />
       	<meta name="keywords" content="Jonathan Karr, systems biology, translational medicine, whole-cell, modeling" />
       	<meta name="author" content="Jonathan Karr" />
-      	<meta name="revised" content="Jonathan Karr, 04/28/2015" />
-      	<meta name="copyright" content="&copy; 2013-2015 Karr Lab" />
+      	<meta name="revised" content="Jonathan Karr, 03/03/2018" />
+      	<meta name="copyright" content="&copy; 2013-2018 Karr Lab" />
       	<meta name="robots" content="ALL" />
       	<meta http-equiv="content-language" content="en-US" />
       	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
@@ -41,14 +41,13 @@
                 text-align:left;
                 whitespace: nowrap;
             }
-            
+
             #code tr.margin th {
                 background:none;
                 height:30px;
             }
             #code tr.type th {
-                background:#d9d9d9;
-                margin-top:10px;
+                background:#d9d9d9
             }
 
             tr.alert td, tr.alert td a{
@@ -142,46 +141,15 @@
 
 require 'functions.php';
 
-$types = array(
-    'Cell models', 
-    'Cell modeling and simulation tools', 
-    'Modeling and simulation tools',
-    'Software development tools',
-    'Other scientific and software tools',
-    'Karr Lab utilities',
-    'Training materials',
-    'Code used for papers',
-    'Other'
-    );
-
-$pkg_ids = scandir('repo');
-$pkg_configs = array();
-foreach ($pkg_ids as $pkg_id) {
-    if (pathinfo($pkg_id, PATHINFO_EXTENSION) != 'json')
-      continue;
-  
-    $handle = fopen("repo/$pkg_id", "r");
-    $pkg = json_decode(fread($handle, filesize("repo/$pkg_id")));
-    fclose($handle);
-    
-    if (property_exists($pkg, 'type')) {
-        $type = $pkg->type;
-    } else {
-        $type = 'Other';        
-    }
-    
-    if (!array_key_exists($type, $pkg_configs)) {
-        $pkg_configs[$type] = array();
-    }
-    $pkg_configs[$type][$pkg->id] = $pkg;
-}
+$types = get_package_types();
+$pkg_configs = get_packages();
 
 foreach ($types as $type) {
     echo "<tr class='margin'><th colspan='15'></th></tr>\n";
     echo "<tr class='type'><th colspan='15'>$type</th></tr>\n";
-    
+
     $pkg_ids = array_keys($pkg_configs[$type]);
-    sort($pkg_ids, SORT_NATURAL | SORT_FLAG_CASE);    
+    sort($pkg_ids, SORT_NATURAL | SORT_FLAG_CASE);
 
     foreach ($pkg_ids as $pkg_id) {
         $pkg = $pkg_configs[$type][$pkg_id];
@@ -189,7 +157,7 @@ foreach ($types as $type) {
 
         if ($pkg->build && $pkg->build->circleci) {
           $latest_build = get_latest_build_circleci($pkg->id, $cache)[0];
-          $artifacts = get_latest_artifacts_circleci($pkg->id, $latest_build->build_num, $cache);
+          $artifacts = get_artifacts_circleci($pkg->id, $latest_build->build_num, $cache);
         } else {
           $latest_build = NULL;
           $artifacts = array();
