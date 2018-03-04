@@ -17,6 +17,8 @@
 
         <link rel="icon" type="image/x-icon" href="http://www.karrlab.org/static/img/logo-mssm-16x16.ico" />
         <link rel="stylesheet" type="text/css" href="dashboard.css">
+        
+        <meta http-equiv="refresh" content="600">
     </head>
     <body>
         <div class="title-bar">Karr Lab status</div>
