@@ -1,0 +1,111 @@
+* {
+    font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+    font-size: 0.91rem;
+}
+body {
+    margin: 0;
+}
+a, a:active, a:visited, a:hover {
+    color: #000;
+    text-decoration: none;
+}
+
+.title-bar {
+    width: 100%;
+    background: #3fa3dc;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1rem;
+    text-align: center;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+.row .column {
+    float: left;
+    width: 50%;
+}
+.row .column:first-child .inner {
+    margin-left: 1rem;
+    margin-right: 0.5rem;
+}
+.row .column:nth-child(2) .inner {
+    margin-left: 0.5rem;
+    margin-right: 1rem;
+}
+
+table{
+    width: 100%;
+}
+th, td {
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    white-space: nowrap;
+    text-align: left;
+}
+
+thead th {
+    background: #A8D5EF;
+}
+
+tr.margin th {
+    background: none;
+    height: 0.5rem;
+}
+tr.type th {
+    background: #A8D5EF;
+    text-align: center;
+}
+
+tbody tr:nth-child(even) td {
+    background: #EEF7FC;
+}
+tbody tr:hover td {
+    background: #ccc;
+}
+tbody tr.alert td {
+    background: #FFD5D5;
+}
+
+.status-bar {
+    text-align: left;
+    width: 50%;
+}
+.status-bar .container{
+    width: 100%;
+    height: 1rem;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #3fa3dc;
+}
+.status-bar .container.alert-fill{
+    background: #ff0000;
+}
+.status-bar .bar {
+    height: 100%;
+    background: #3fa3dc;
+    float: left;
+    padding: 0;
+    margin: 0;
+}
+.status-bar .bar.alert {
+    background: #ff0000;
+}
+.status-bar .bar.warn {
+    background: #ffff00;
+}
+.status-percent {
+    text-align: right;
+    padding-left: 0.2rem;
+}
+.status-number {
+    padding-left: 0.2rem;
+}
+td.py-2, td.py-3, th.py-2, th.py-3 {
+    text-align: center;
+}
+
+td.status-bar, th.status-title, td.py-2, th.py-2-title  {
+    padding-left: 0.5rem;
+}
