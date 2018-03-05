@@ -205,10 +205,9 @@ foreach ($types as $type) {
         #documentation
         echo "<td>";
         if ($pkg->docs && $pkg->docs->readthedocs) {
-            $docs_pkg_id = ($pkg->docs->readthedocs->id ? $pkg->docs->readthedocs->id : $pkg->id);
-            $docs_url = sprintf('http://%s.readthedocs.org', $docs_pkg_id);
+            $docs_url = "view_docs.php?package=".$pkg->id;
         } elseif ($pkg->docs && $pkg->docs->url) {
-            $docs_url = $pkg->docs->url;
+            $docs_url = "view_docs.php?package=".$pkg->id;
         } elseif ($artifacts['docs']) {
             $docs_url = "view_docs.php?package=".$pkg->id;
         } else {

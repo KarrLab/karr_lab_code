@@ -11,8 +11,9 @@ $pkg = json_decode(fread($handle, filesize("repo/$pkg_id.json")));
 fclose($handle);
 
 # get URL for documentation
+/*
 $url = NULL;
- if ($pkg->docs && $pkg->docs->readthedocs) {
+if ($pkg->docs && $pkg->docs->readthedocs) {
     $docs_pkg_id = ($pkg->docs->readthedocs->id ? $pkg->docs->readthedocs->id : $pkg->id);
     $url = sprintf('http://%s.readthedocs.org', $docs_pkg_id);
 } elseif ($pkg->docs && $pkg->docs->url) {
@@ -24,6 +25,8 @@ $url = NULL;
         $url = $artifacts['docs'];
     }
 }
+*/
+$url = "https://docs.karrlab.org/$pkg_id";
 
 # redirect to URL or return error
 if ($url) {
