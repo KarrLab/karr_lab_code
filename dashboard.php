@@ -17,11 +17,11 @@
 
         <link rel="icon" type="image/x-icon" href="http://www.karrlab.org/static/img/logo-mssm-16x16.ico" />
         <link rel="stylesheet" type="text/css" href="dashboard.css">
-        
+
         <meta http-equiv="refresh" content="600">
     </head>
     <body>
-        <div class="title-bar">Karr Lab status</div>
+        <div class="title-bar">Karr Lab code</div>
         <div class="row">
 
 <?php
@@ -58,8 +58,8 @@ function print_table($types, $pkg_configs, $cache) {
     echo "            <th>Package</th>\n";
     echo "            <th colspan='3' class='status-title'>Test results</th>\n";
     echo "            <th colspan='2' class='status-title'>Test coverage</th>\n";
-    echo "            <th class='py-2-title'>Py 2</th>\n";
-    echo "            <th>Py 3</th>\n";
+    echo "            <th class='py-2-title'>Py2</th>\n";
+    echo "            <th class='py-3-title'>Py3</th>\n";
     echo "        </tr>\n";
     echo "    </thead>\n";
 
@@ -90,7 +90,12 @@ function print_table($types, $pkg_configs, $cache) {
             echo "<tr class='$status'>\n";
 
             #name
-            echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n", $pkg_id, $pkg_id);
+            if (strlen($pkg_id) <= 18) {
+                $name = $pkg_id;
+            } else {
+                $name = substr($pkg_id, 0, 15)."&#8230;";
+            }
+            echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n", $pkg_id, $name);
 
             #tests results
             if ($pkg->test_results && $pkg->build && $pkg->build->circleci) {
@@ -157,12 +162,12 @@ function print_table($types, $pkg_configs, $cache) {
                 else
                     echo sprintf("<td class='py-2'></td>\n");
                 if ($tests['py_3'])
-                    echo sprintf("<td>&#10003;</td>\n");
+                    echo sprintf("<td class='py-3'>&#10003;</td>\n");
                 else
-                    echo sprintf("<td></td>\n");
+                    echo sprintf("<td class='py-3'></td>\n");
             } else {
                 echo sprintf("<td class='py-2'></td>\n");
-                echo sprintf("<td></td>\n");
+                echo sprintf("<td class='py-3'></td>\n");
             }
 
             #end row
