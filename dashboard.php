@@ -1,4 +1,10 @@
 <!doctype html>
+<!-- Cast to TV with
+- Dashcast (http://stestagg.github.io/dashcast/)
+- Web2cast Android app (https://play.google.com/store/apps/details?id=com.rabidgremlin.web2cast&hl=en)
+
+Formatted for 720p for Chromecast (limited to 720p)
+-->
 <html class="no-js" lang="en">
     <head>
         <meta charset="utf-8" />
@@ -18,7 +24,7 @@
         <link rel="icon" type="image/x-icon" href="http://www.karrlab.org/static/img/logo-mssm-16x16.ico" />
         <link rel="stylesheet" type="text/css" href="dashboard.css">
 
-        <meta http-equiv="refresh" content="10">
+        <meta http-equiv="refresh" content="300">
     </head>
     <body>
         <div class="title-bar">Karr Lab code</div>
@@ -114,13 +120,13 @@ function print_table($types, $pkg_configs, $cache) {
             $diff = '';
             if ($years > 0)
                 $diff .= sprintf('%dy ', $years);
-            if ($years > 0 || $weeks > 0)
+            if ($years > 0)
                 $diff .= sprintf('%dw ', $weeks);
-            if ($years > 0 || $weeks > 0 || $days > 0)
+            if ($years > 0)
                 $diff .= sprintf('%dd ', $days);
-            if ($years > 0 || $weeks > 0 || $days > 0 || $hours > 0)
+            if ($years > 0)
                 $diff .= sprintf('%dh ', $hours);
-            if ($years > 0 || $weeks > 0 || $days > 0 || $hours > 0 || $minutes > 0)
+            if ($years > 0)
                 $diff .= sprintf('%dm', $minutes);
 			echo sprintf("<td class='latest-commit'><a href='https://github.com/KarrLab/%s/tree/%s'>%s</a></td>", 
 				$pkg_id, $github_info['latest_commit']['sha'], $diff);
