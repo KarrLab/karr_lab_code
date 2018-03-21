@@ -44,59 +44,86 @@ function get_url($url, $cache, $expiration=5*60, $post=NULL, $username=NULL, $pa
     return $response;
 }
 
-function get_source_github($repo, $cache){
-    $username = rtrim(file_get_contents('tokens/GITHUB_USERNAME'));
-    $password = rtrim(file_get_contents('tokens/GITHUB_PASSWORD'));
-    $client_id = rtrim(file_get_contents('tokens/GITHUB_CLIENT_ID'));
-    $client_secret = rtrim(file_get_contents('tokens/GITHUB_CLIENT_SECRET'));
+function get_source_github($repo, $cache, $get_release=true, $get_commit=true, $get_contributors=true, 
+    $get_views=true, $get_downloads=true, $get_forks=true){
+    $api_token = rtrim(file_get_contents('tokens/GITHUB_API_TOKEN'));
     $user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36';
 
     #latest release
-    $url = sprintf('https://api.github.com/repos/KarrLab/%s/tags', $repo);
-    $data = get_url($url, $cache, 5*60, NULL, $username, $password);
-    $tags = array();
-    foreach($data as $tag)
-        array_push($tags, $tag->name);
-    rsort($tags, SORT_NATURAL | SORT_FLAG_CASE);
-    $latest_tag = $tags[0];
+    if ($get_release) {
+        $url = sprintf('https://api.github.com/repos/KarrLab/%s/tags', $repo);
+        $data = get_url($url, $cache, 5*60, NULL, NULL, NULL, $api_token);
+        $tags = array();
+        foreach($data as $tag)
+            array_push($tags, $tag->name);
+        rsort($tags, SORT_NATURAL | SORT_FLAG_CASE);
+        $latest_tag = $tags[0];
+    }
+    
+    #latest commit
+    if ($get_commit) {
+        $url = sprintf('https://api.github.com/repos/KarrLab/%s/commits', $repo);
+        $data = get_url($url, $cache, 5*60, NULL, NULL, NULL, $api_token);
+        $latest_commit = array(
+            'sha' => $data[0]->sha,
+            'author_login' => $data[0]->author->login,
+            'author_name' => $data[0]->commit->author->name,
+            'date' => strtotime($data[0]->commit->author->date)
+            );
+    }
+    
+    #contributors
+    if ($get_contributors) {
+        $url = sprintf('https://api.github.com/repos/KarrLab/%s/contributors', $repo);
+        $data = get_url($url, $cache, 5*60, NULL, NULL, NULL, $api_token);
+        $num_contributors = count($data);
+    }
 
     #views and clones
+    if ($get_views) {
     $views = 0;
-    $clones = 0;
-    $unique_views = 0;
-    $unique_clones = 0;
+        $clones = 0;
+        $unique_views = 0;
+        $unique_clones = 0;
 
-    $stats_filename = sprintf('repo/%s.stats.tsv', $repo);
-    if (file_exists($stats_filename)) {
-        $fp = fopen($stats_filename, 'r');
-        if (!feof($fp))
-            $line = fgets($fp); #header
-        while (!feof($fp)) {
-            $line = rtrim(fgets($fp));
-            $data = preg_split('/\t/', $line);
-            $views += $data[1];
-            $unique_views += $data[2];
-            $clones += $data[3];
-            $unique_clones += $data[4];
+        $stats_filename = sprintf('repo/%s.stats.tsv', $repo);
+        if (file_exists($stats_filename)) {
+            $fp = fopen($stats_filename, 'r');
+            if (!feof($fp))
+                $line = fgets($fp); #header
+            while (!feof($fp)) {
+                $line = rtrim(fgets($fp));
+                $data = preg_split('/\t/', $line);
+                $views += $data[1];
+                $unique_views += $data[2];
+                $clones += $data[3];
+                $unique_clones += $data[4];
+            }
+            fclose($fp);
         }
-        fclose($fp);
     }
 
     #downloads
-    $url = sprintf('https://api.github.com/repos/KarrLab/%s/releases', $repo);
-    $data = get_url($url, $cache, 24*60*60, NULL, $username, $password);
-    $downloads = 0;
-    foreach ($data as $release)
-        $downloads += $release->assets->download_count;
-
+    if ($get_downloads) {
+        $url = sprintf('https://api.github.com/repos/KarrLab/%s/releases', $repo);
+        $data = get_url($url, $cache, 24*60*60, NULL, NULL, NULL, $api_token);
+        $downloads = 0;
+        foreach ($data as $release)
+            $downloads += $release->assets->download_count;
+    }
+    
     #forks
-    $url = sprintf('https://api.github.com/repos/KarrLab/%s/forks', $repo);
-    $data = get_url($url, $cache, 24*60*60, NULL, $username, $password);
-    $forks = count($data);
+    if ($get_forks) {
+        $url = sprintf('https://api.github.com/repos/KarrLab/%s/forks', $repo);
+        $data = get_url($url, $cache, 24*60*60, NULL, NULL, NULL, $api_token);
+        $forks = count($data);
+    }
 
     #return info
     return array(
         'latest_tag' => $latest_tag,
+        'latest_commit' => $latest_commit,
+        'num_contributors' => $num_contributors,
         'views' => $views,
         'unique_views' => $unique_views,
         'downloads' => $downloads,
@@ -227,7 +254,11 @@ function get_package_types() {
 
 function get_packages() {
     $pkg_ids = scandir('repo');
+    
     $pkg_configs = array();
+    foreach (get_package_types() as $type)
+        $pkg_configs[$type] = array();    
+    
     foreach ($pkg_ids as $pkg_id) {
         if (pathinfo($pkg_id, PATHINFO_EXTENSION) != 'json')
           continue;
@@ -242,9 +273,6 @@ function get_packages() {
             $type = 'Other';
         }
 
-        if (!array_key_exists($type, $pkg_configs)) {
-            $pkg_configs[$type] = array();
-        }
         $pkg_configs[$type][$pkg->id] = $pkg;
     }
     return $pkg_configs;

@@ -18,7 +18,7 @@
         <link rel="icon" type="image/x-icon" href="http://www.karrlab.org/static/img/logo-mssm-16x16.ico" />
         <link rel="stylesheet" type="text/css" href="dashboard.css">
 
-        <meta http-equiv="refresh" content="600">
+        <meta http-equiv="refresh" content="10">
     </head>
     <body>
         <div class="title-bar">Karr Lab code</div>
@@ -53,9 +53,10 @@ function print_table($types, $pkg_configs, $cache) {
     echo "<div class='inner'>\n";
     echo "<table cellpadding=0 cellspacing=0>\n";
     echo "    <thead>\n";
-    echo "        <tr class='margin'><th colspan='8'></th></tr>\n";
+    echo "        <tr class='margin'><th colspan='9'></th></tr>\n";
     echo "        <tr>\n";
     echo "            <th>Package</th>\n";
+	echo "            <th>Update</th>\n";
     echo "            <th colspan='3' class='status-title'>Test results</th>\n";
     echo "            <th colspan='2' class='status-title'>Test coverage</th>\n";
     echo "            <th class='py-2-title'>Py2</th>\n";
@@ -65,8 +66,8 @@ function print_table($types, $pkg_configs, $cache) {
 
     foreach ($types as $type) {
         echo "<tbody>\n";
-        echo "<tr class='margin'><th colspan='8'></th></tr>\n";
-        echo "<tr class='type'><th colspan='8'>$type</th></tr>\n";
+        echo "<tr class='margin'><th colspan='9'></th></tr>\n";
+        echo "<tr class='type'><th colspan='9'>$type</th></tr>\n";
 
         $pkg_ids = array_keys($pkg_configs[$type]);
         sort($pkg_ids, SORT_NATURAL | SORT_FLAG_CASE);
@@ -90,12 +91,39 @@ function print_table($types, $pkg_configs, $cache) {
             echo "<tr class='$status'>\n";
 
             #name
-            if (strlen($pkg_id) <= 18) {
+            if (strlen($pkg_id) <= 12) {
                 $name = $pkg_id;
             } else {
-                $name = substr($pkg_id, 0, 15)."&#8230;";
+                $name = substr($pkg_id, 0, 9)."&#8230;";
             }
             echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n", $pkg_id, $name);
+			
+			#time of last commit
+            $github_info = get_source_github($pkg_id, $cache, false, true, false, false, false, false);
+            
+            $diff = time() - $github_info['latest_commit']['date'];
+            $years = floor($diff / (365 * 24 * 60 * 60));
+            $diff = $diff % (365 * 24 * 60 * 60);
+            $weeks = floor($diff / (7 * 24 * 60 * 60));
+            $diff = $diff % (7 * 24 * 60 * 60);
+            $days = floor($diff / (24 * 60 * 60));
+            $diff = $diff % (24 * 60 * 60);
+            $hours = floor($diff / (60 * 60));
+            $diff = $diff % (60 * 60);
+            $minutes = floor($diff / 60);
+            $diff = '';
+            if ($years > 0)
+                $diff .= sprintf('%dy ', $years);
+            if ($years > 0 || $weeks > 0)
+                $diff .= sprintf('%dw ', $weeks);
+            if ($years > 0 || $weeks > 0 || $days > 0)
+                $diff .= sprintf('%dd ', $days);
+            if ($years > 0 || $weeks > 0 || $days > 0 || $hours > 0)
+                $diff .= sprintf('%dh ', $hours);
+            if ($years > 0 || $weeks > 0 || $days > 0 || $hours > 0 || $minutes > 0)
+                $diff .= sprintf('%dm', $minutes);
+			echo sprintf("<td class='latest-commit'><a href='https://github.com/KarrLab/%s/tree/%s'>%s</a></td>", 
+				$pkg_id, $github_info['latest_commit']['sha'], $diff);
 
             #tests results
             if ($pkg->test_results && $pkg->build && $pkg->build->circleci) {

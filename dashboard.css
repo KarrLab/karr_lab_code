@@ -1,9 +1,10 @@
 * {
     font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-    font-size: 1.35rem;
+    font-size: 0.99rem;
 }
 body {
     margin: 0;
+	background: #ffffff;
 }
 a, a:active, a:visited, a:hover {
     color: #000;
@@ -17,7 +18,7 @@ a, a:active, a:visited, a:hover {
     font-weight: bold;
     font-size: 1.6rem;
     text-align: center;
-    padding-top: 0.5rem;
+    padding-top: 1.25rem;
     padding-bottom: 0.5rem;
 }
 .row .column {
@@ -25,12 +26,12 @@ a, a:active, a:visited, a:hover {
     width: 50%;
 }
 .row .column:first-child .inner {
-    margin-left: 1rem;
+    margin-left: 2.25rem;
     margin-right: 0.5rem;
 }
 .row .column:nth-child(2) .inner {
     margin-left: 0.5rem;
-    margin-right: 1rem;
+    margin-right: 2.25rem;
 }
 
 table{
@@ -67,9 +68,16 @@ tbody tr.alert td {
     background: #FFD5D5;
 }
 
+.latest-commit {
+	white-space: nowrap;
+}
+.latest-commit a {
+	font-size: 0.75rem;
+}
+
 .status-bar {
     text-align: left;
-    width: 8rem;
+    width: 6rem;
 }
 .status-bar .container{
     width: 100%;

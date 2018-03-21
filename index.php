@@ -22,6 +22,9 @@
         <link rel="icon" type="image/x-icon" href="http://www.karrlab.org/static/img/logo-mssm-16x16.ico" />
 
         <style>
+            .row {
+                max-width: 80rem;
+            }
             #code{
                 width:100%;
             }
@@ -117,6 +120,8 @@
                                         <th colspan="12"></th>
                                         <th colspan="2">Downloads</th>
                                         <th colspan="1"></th>
+                                        <th colspan="2">Latest commit</th>
+                                        <th colspan="1"></th>
                                     </tr>
                                     <tr>
                                         <th>Package</th>
@@ -134,6 +139,9 @@
                                         <th>GitHub</th>
                                         <th>Dist</th>
                                         <th>Forks</th>
+                                        <th>Author</th>
+                                        <th>Date</th>
+                                        <th>Contributors</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -145,8 +153,8 @@ $types = get_package_types();
 $pkg_configs = get_packages();
 
 foreach ($types as $type) {
-    echo "<tr class='margin'><th colspan='15'></th></tr>\n";
-    echo "<tr class='type'><th colspan='15'>$type</th></tr>\n";
+    echo "<tr class='margin'><th colspan='18'></th></tr>\n";
+    echo "<tr class='type'><th colspan='18'>$type</th></tr>\n";
 
     $pkg_ids = array_keys($pkg_configs[$type]);
     sort($pkg_ids, SORT_NATURAL | SORT_FLAG_CASE);
@@ -281,11 +289,21 @@ foreach ($types as $type) {
         #forks
         echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
           $pkg->id, $source['forks']);
+          
+        #latest commit
+        echo sprintf("<td><a href='https://github.com/%s'>%s</a></td>\n", 
+            $source['latest_commit']['author_login'], $source['latest_commit']['author_name']);
+        echo sprintf("<td><a href='https://github.com/KarrLab/%s/tree/%s'>%s</a></td>\n", 
+            $pkg->id, $source['latest_commit']['sha'],
+            strftime('%Y-%m-%d %H:%M', $source['latest_commit']['date']));
+        
+        #contributors
+        echo sprintf("<td>%d</td>\n", $source['num_contributors']);
 
         #end row
         echo "</tr>\n";
         echo "<tr>\n";
-        echo sprintf("<td colspan='15'>%s</td>\n", $pkg->description);
+        echo sprintf("<td colspan='18'>%s</td>\n", $pkg->description);
         echo "</tr>\n";
     }
 }
