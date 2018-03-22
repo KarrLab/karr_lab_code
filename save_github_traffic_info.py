@@ -11,14 +11,8 @@ USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Ge
 TOKENS_DIR = os.path.join(os.path.dirname(__file__), 'tokens')
 REPOS_DIR = os.path.join(os.path.dirname(__file__), 'repo')
 
-with open(os.path.join(TOKENS_DIR, 'GITHUB_USERNAME'), 'r') as file:
-    GITHUB_USERNAME = file.read().rstrip()
-
-with open(os.path.join(TOKENS_DIR, 'GITHUB_PASSWORD'), 'r') as file:
-    GITHUB_PASSWORD = file.read().rstrip()
-
-with open(os.path.join(TOKENS_DIR, 'GITHUB_ACCESS_TOKEN'), 'r') as file:
-    GITHUB_ACCESS_TOKEN = file.read().rstrip()
+with open(os.path.join(TOKENS_DIR, 'GITHUB_API_TOKEN'), 'r') as file:
+    GITHUB_API_TOKEN = file.read().rstrip()
 
 session = requests.Session()
 session.mount('https://api.github.com', requests.adapters.HTTPAdapter(max_retries=10))
@@ -36,7 +30,7 @@ for repo_config_filename in glob(os.path.join(REPOS_DIR, '*.json')):
 
     r = requests.get(url,
         headers={
-            'Authorization': 'token {}'.format(GITHUB_ACCESS_TOKEN),
+            'Authorization': 'token {}'.format(GITHUB_API_TOKEN),
             'accept': 'application/vnd.github.spiderman-preview',
             'user-agent': USER_AGENT,
         },
@@ -58,7 +52,7 @@ for repo_config_filename in glob(os.path.join(REPOS_DIR, '*.json')):
 
     r = session.get(url,
         headers={
-            'Authorization': 'token {}'.format(GITHUB_ACCESS_TOKEN),
+            'Authorization': 'token {}'.format(GITHUB_API_TOKEN),
             'accept': 'application/vnd.github.spiderman-preview',
             'user-agent': USER_AGENT,
         },
