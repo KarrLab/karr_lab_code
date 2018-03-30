@@ -216,6 +216,7 @@ function print_table($types, $pkg_configs, $cache) {
     echo "</div>\n";
 }
 
+$cache->commit();
 ?>
         <div style="clear: both;">
         </div>

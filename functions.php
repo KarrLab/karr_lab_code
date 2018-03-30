@@ -1,18 +1,19 @@
 <?php
 
-require_once('lib/Simple-PHP-Cache-1.6/cache.class.php');
-$cache = new Cache(array(
-    'name'      => 'index',
-    'path'      => 'cache/',
-    'extension' => '.cache'
-));
+require('lib/phpFastCache-6.1.2/src/autoload.php');
+use phpFastCache\CacheManager;
 
-$cache->eraseExpired();
+CacheManager::setDefaultConfig([
+    'path' => __DIR__ . '/cache/',
+]);
+$cache = CacheManager::getInstance('files');
+
 if ($_GET['refresh'])
-    $cache->eraseAll();
+    $cache->clear();
 
 function get_url($url, $cache, $expiration=5*60, $post=NULL, $username=NULL, $password=NULL, $token=NULL) {
-    $response = $cache->retrieve($url);
+    $cache_item = $cache->getItem(preg_replace('/[^a-z0-9_]/i', '_', $url));
+    $response = $cache_item->get();
 
     if (is_null($response)) {
         $user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36';
@@ -37,8 +38,9 @@ function get_url($url, $cache, $expiration=5*60, $post=NULL, $username=NULL, $pa
 
         if ($httpcode < 200 || $httpcode >= 300)
             throw new Exception(sprintf('Error reading URL: %s', $url));
-
-        $cache->store($url, $response, $expiration);
+        
+        $cache_item->set($response)->expiresAfter($expiration);
+        $cache->save($cache_item);
     }
 
     return $response;

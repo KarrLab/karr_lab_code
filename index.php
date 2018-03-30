@@ -307,6 +307,8 @@ foreach ($types as $type) {
         echo "</tr>\n";
     }
 }
+
+$cache->commit();
 ?>
                                 </tbody>
                             </table>
