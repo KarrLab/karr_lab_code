@@ -117,20 +117,21 @@ function print_table($types, $pkg_configs, $cache) {
             $hours = floor($diff / (60 * 60));
             $diff = $diff % (60 * 60);
             $minutes = floor($diff / 60);
+            
             $diff = '';
             if ($years > 0)
                 $diff .= sprintf('%dy ', $years);
-            if ($years > 0)
+            if ($weeks > 0)
                 $diff .= sprintf('%dw ', $weeks);
-            if ($years > 0)
+            if ($days > 0)
                 $diff .= sprintf('%dd ', $days);
-            if ($years > 0)
+            if ($hours > 0)
                 $diff .= sprintf('%dh ', $hours);
-            if ($years > 0)
+            if ($minutes > 0)
                 $diff .= sprintf('%dm', $minutes);
 			echo sprintf("<td class='latest-commit'><a href='https://github.com/KarrLab/%s/tree/%s'>%s</a></td>", 
 				$pkg_id, $github_info['latest_commit']['sha'], $diff);
-
+            
             #tests results
             if ($pkg->test_results && $pkg->build && $pkg->build->circleci) {
                 if ($latest_build->status != 'fixed' &&
