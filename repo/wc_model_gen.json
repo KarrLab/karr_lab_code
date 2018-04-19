@@ -1,0 +1,27 @@
+{
+  "id": "wc_model_gen",
+  "type": "Cell modeling and simulation tools",
+  "description": "Framework for systematically and scalably designing whole-cell models from large datasets such as <a href='https://github.com/KarrLab/wc_kb'>wc_kb</a>",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": true
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}
