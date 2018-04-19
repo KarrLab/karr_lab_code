@@ -36,7 +36,7 @@ function get_url($url, $cache, $expiration=5*60, $post=NULL, $username=NULL, $pa
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if (($httpcode < 200 || $httpcode >= 300) && $httpcode != 302)
+        if (($httpcode < 200 || $httpcode >= 300) && $httpcode != 301 && $httpcode != 302)
             throw new Exception(sprintf('Error %d reading URL: %s', $httpcode, $url));
         
         $cache_item->set($response)->expiresAfter($expiration);
