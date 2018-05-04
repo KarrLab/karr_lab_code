@@ -65,8 +65,6 @@ function print_table($types, $pkg_configs, $cache) {
 	echo "            <th>Update</th>\n";
     echo "            <th colspan='3' class='status-title'>Test results</th>\n";
     echo "            <th colspan='2' class='status-title'>Test coverage</th>\n";
-    echo "            <th class='py-2-title'>Py2</th>\n";
-    echo "            <th class='py-3-title'>Py3</th>\n";
     echo "        </tr>\n";
     echo "    </thead>\n";
 
@@ -188,21 +186,6 @@ function print_table($types, $pkg_configs, $cache) {
             } else {
                 echo "<td class='status-bar'></td>\n";
                 echo "<td class='status-percent'></td>\n";
-            }
-
-            #python version
-            if ($pkg->test_results && $pkg->build && $pkg->build->circleci) {
-                if ($tests['py_2'])
-                    echo sprintf("<td class='py-2'>&#10003;</td>\n");
-                else
-                    echo sprintf("<td class='py-2'></td>\n");
-                if ($tests['py_3'])
-                    echo sprintf("<td class='py-3'>&#10003;</td>\n");
-                else
-                    echo sprintf("<td class='py-3'></td>\n");
-            } else {
-                echo sprintf("<td class='py-2'></td>\n");
-                echo sprintf("<td class='py-3'></td>\n");
             }
 
             #end row
