@@ -1,8 +1,0 @@
-{
-  "id": "wc_website",
-  "type": "Training materials",
-  "description": "Code for the whole-cell modeling community website (<a href='http://www.wholecell.org'>wholecell.org</a>)",
-  "availability": "Open",
-  "license": "MIT",
-  "test_results": false
-}
