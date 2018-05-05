@@ -1,0 +1,27 @@
+{
+  "id": "wc_kb_gen",
+  "type": "Cell modeling and simulation tools",
+  "description": "Framework for systematically and scalably building knowledge bases for whole-cell models",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": true
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}
