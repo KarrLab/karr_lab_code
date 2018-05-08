@@ -116,15 +116,19 @@ tbody tr.alert td {
     font-size:0.75rem;
 }
 
-td.py-2, td.py-3, th.py-2, th.py-3 {
+td.issues, th.issues {
     text-align: center;
     width: 5%;
     max-width: 5%;
 }
-td.py-2, td.py-3 {
+td.issues, td.issues a, td.issues span {
     font-size:0.75rem;
 }
 
-td.status-bar, th.status-title, td.py-2, th.py-2-title  {
+td.issues .alert{
+    color: #ff0000;
+}
+
+td.status-bar, th.status-title, td.issues, th.issues {
     padding-left: 0.5rem;
 }

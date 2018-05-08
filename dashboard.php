@@ -65,6 +65,7 @@ function print_table($types, $pkg_configs, $cache) {
 	echo "            <th>Update</th>\n";
     echo "            <th colspan='3' class='status-title'>Test results</th>\n";
     echo "            <th colspan='2' class='status-title'>Test coverage</th>\n";
+    echo "            <th class='issues'>Issues</th>\n";
     echo "        </tr>\n";
     echo "    </thead>\n";
 
@@ -103,7 +104,7 @@ function print_table($types, $pkg_configs, $cache) {
             echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n", $pkg_id, $name);
 			
 			#time of last commit
-            $github_info = get_source_github($pkg_id, $cache, false, true, false, false, false, false);
+            $github_info = get_source_github($pkg_id, $cache, false, true, false, false, false, false, true);
             
             $diff = time() - $github_info['latest_commit']['date'];
             $years = floor($diff / (365 * 24 * 60 * 60));
@@ -187,6 +188,12 @@ function print_table($types, $pkg_configs, $cache) {
                 echo "<td class='status-bar'></td>\n";
                 echo "<td class='status-percent'></td>\n";
             }
+            
+            # issues
+            $issues = $github_info['issues'];
+            echo sprintf("<td class='issues'><a href='https://github.com/KarrLab/%s/issues' class='%s'>%d</a> / <a href='https://github.com/KarrLab/%s/issues?q='>%d</a></td>\n", 
+                $pkg_id, $issues['needs-work'] > 0 ? 'alert' : '', $issues['needs-work'], 
+                $pkg_id, $issues['total']);
 
             #end row
             echo "</tr>\n";

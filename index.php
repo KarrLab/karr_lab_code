@@ -56,6 +56,10 @@
             tr.alert td, tr.alert td a{
               color:red;
             }
+            
+            span.alert {
+                color:red;
+            }
         </style>
     </head>
     <body>
@@ -117,7 +121,7 @@
                             <table cellpadding=0 cellspacing=0 id="code">
                                 <thead>
                                     <tr>
-                                        <th colspan="12"></th>
+                                        <th colspan="13"></th>
                                         <th colspan="2">Downloads</th>
                                         <th colspan="1"></th>
                                         <th colspan="2">Latest commit</th>
@@ -134,6 +138,7 @@
                                         <th>Tests</th>
                                         <th>Coverage</th>
                                         <th>Analysis</th>
+                                        <th>Issues</th>
                                         <th>Views</th>
                                         <th>Clones</th>
                                         <th>GitHub</th>
@@ -147,8 +152,8 @@
                                 <tbody>
 <?php
 
-//error_reporting(E_ERROR);
-//ini_set('display_errors', 1);
+error_reporting(E_ERROR);
+ini_set('display_errors', 1);
 
 require 'functions.php';
 
@@ -156,8 +161,8 @@ $types = get_package_types();
 $pkg_configs = get_packages();
 
 foreach ($types as $type) {
-    echo "<tr class='margin'><th colspan='18'></th></tr>\n";
-    echo "<tr class='type'><th colspan='18'>$type</th></tr>\n";
+    echo "<tr class='margin'><th colspan='19'></th></tr>\n";
+    echo "<tr class='type'><th colspan='19'>$type</th></tr>\n";
 
     $pkg_ids = array_keys($pkg_configs[$type]);
     sort($pkg_ids, SORT_NATURAL | SORT_FLAG_CASE);
@@ -263,6 +268,12 @@ foreach ($types as $type) {
             echo sprintf("<a href='%s'>%s</a>", $url, $gpa);
         }
         echo "</td>\n";
+        
+        #issues
+        echo sprintf("<td><a href='https://github.com/KarrLab/%s/issues' class='%s'>%d</a> / <a href='https://github.com/KarrLab/%s/issues?q='>%d</a></td>\n",
+          $pkg->id, $source['issues']['needs-work'] > 0 ? 'alert' : '', $source['issues']['needs-work'],
+          $pkg->id, $source['issues']['total']
+          );
 
         #views
         echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
@@ -306,7 +317,7 @@ foreach ($types as $type) {
         #end row
         echo "</tr>\n";
         echo "<tr>\n";
-        echo sprintf("<td colspan='18'>%s</td>\n", $pkg->description);
+        echo sprintf("<td colspan='19'>%s</td>\n", $pkg->description);
         echo "</tr>\n";
     }
 }
