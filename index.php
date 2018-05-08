@@ -57,7 +57,7 @@
               color:red;
             }
             
-            span.alert {
+            a.alert {
                 color:red;
             }
         </style>
