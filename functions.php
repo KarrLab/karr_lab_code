@@ -137,7 +137,8 @@ function get_source_github($repo, $cache, $get_release=true, $get_commit=true, $
         $issues = array(
             'total' => 0,
             'closed' => 0,
-            'needs-work' => 0
+            'needs-work' => 0,
+            'issues' => array()
             );
         $page = 0;
         while (true) {
@@ -146,6 +147,7 @@ function get_source_github($repo, $cache, $get_release=true, $get_commit=true, $
             list($data, $headers) = get_url($url, $cache, 24*60*60, NULL, NULL, NULL, $api_token);            
             $issues['total'] += count($data);
             foreach ($data as $issue) {
+                array_push($issues['issues'], $issue);
                 if ($issue->state == 'closed') {
                     $issues['closed']++;
                 } else {
