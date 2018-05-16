@@ -1,5 +1,5 @@
 {
-  "id": "random_wc_model_generator",
+  "id": "rand_wc_model_gen",
   "type": "Cell models",
   "description": "Random whole-cell model generator",
   "availability": "Closed",
