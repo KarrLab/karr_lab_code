@@ -1,0 +1,8 @@
+{
+  "id": "wc_sandbox",
+  "type": "Training materials",
+  "description": "Jupyter server for testing whole-cell models and whole-cell modeling tools, <a href='https://sandbox.karrlab.org'>https://sandbox.karrlab.org</a>",
+  "availability": "Open",
+  "license": "MIT",
+  "test_results": false
+}
