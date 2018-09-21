@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- Cast to TV with
-- Dashcast (http://stestagg.github.io/dashcast/)
+- Dashcast (https://stestagg.github.io/dashcast/)
 - Web2cast Android app (https://play.google.com/store/apps/details?id=com.rabidgremlin.web2cast&hl=en)
 
 Formatted for 720p for Chromecast (limited to 720p)
@@ -21,7 +21,7 @@ Formatted for 720p for Chromecast (limited to 720p)
 
         <title>Karr Lab dashboard</title>
 
-        <link rel="icon" type="image/x-icon" href="http://www.karrlab.org/static/img/logo-mssm-16x16.ico" />
+        <link rel="icon" type="image/x-icon" href="https://www.karrlab.org/static/img/logo-mssm-16x16.ico" />
         <link rel="stylesheet" type="text/css" href="dashboard.css">
 
         <meta http-equiv="refresh" content="300">
@@ -141,7 +141,7 @@ function print_table($types, $pkg_configs, $cache) {
                 }
 
                 echo sprintf("<td class='status-bar'>\n");
-                echo sprintf("  <a href='http://tests.karrlab.org/KarrLab/%s'>\n", $pkg_id);
+                echo sprintf("  <a href='https://tests.karrlab.org/KarrLab/%s'>\n", $pkg_id);
                 echo sprintf("    <div class='container alert-fill' title='Failed'>\n");
                 if ($tests['total'] > 0) {
                     echo sprintf("<div class='bar' style='width:%.0f%%' title='Passed'></div>\n", $tests['passes'] / $tests['total']  * 100);
@@ -151,9 +151,9 @@ function print_table($types, $pkg_configs, $cache) {
                 echo sprintf("    </div>\n");
                 echo sprintf("  </a>\n");
                 echo sprintf("</td>\n");
-                echo sprintf("<td class='status-percent'><a href='http://tests.karrlab.org/KarrLab/%s'>%.0f%%</a></td>\n",
+                echo sprintf("<td class='status-percent'><a href='https://tests.karrlab.org/KarrLab/%s'>%.0f%%</a></td>\n",
                     $pkg_id, $percent);
-                echo sprintf("<td class='status-number'><a href='http://tests.karrlab.org/KarrLab/%s'>of %d</a></td>\n",
+                echo sprintf("<td class='status-number'><a href='https://tests.karrlab.org/KarrLab/%s'>of %d</a></td>\n",
                     $pkg_id, $tests['total']);
             } else {
                 echo "<td class='status-bar'></td>\n";

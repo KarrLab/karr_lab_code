@@ -14,12 +14,12 @@
       	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 
         <title>Karr Lab</title>
-        <link rel="stylesheet" href="http://www.karrlab.org/static/css/foundation.css" />
-        <link rel="stylesheet" href="http://www.karrlab.org/static/css/foundation-icons.css" />
-        <link rel="stylesheet" href="http://www.karrlab.org/static/css/extras.css" />
-        <script src="http://www.karrlab.org/static/js/vendor/modernizr.js"></script>
+        <link rel="stylesheet" href="https://www.karrlab.org/static/css/foundation.css" />
+        <link rel="stylesheet" href="https://www.karrlab.org/static/css/foundation-icons.css" />
+        <link rel="stylesheet" href="https://www.karrlab.org/static/css/extras.css" />
+        <script src="https://www.karrlab.org/static/js/vendor/modernizr.js"></script>
 
-        <link rel="icon" type="image/x-icon" href="http://www.karrlab.org/static/img/logo-mssm-16x16.ico" />
+        <link rel="icon" type="image/x-icon" href="https://www.karrlab.org/static/img/logo-mssm-16x16.ico" />
 
         <style>
             table {
@@ -73,15 +73,15 @@
                 <aside class="left-off-canvas-menu">
                     <ul class="off-canvas-list">
                         <li><label>Karr Systems Biology Lab</label></li>
-                        <li><a href="http://www.karrlab.org/">Home</a></li>
-                        <li><a href="http://www.karrlab.org/research">Research</a></li>
-                        <li><a href="http://www.karrlab.org/resources">Resources</a></li>
-                        <li><a href="http://www.karrlab.org/publications">Publications</a></li>
-                        <li><a href="http://www.karrlab.org/press">Press</a></li>
-                        <li><a href="http://www.karrlab.org/funding">Funding</a></li>
-                        <li><a href="http://www.karrlab.org/people">People</a></li>
-                        <li><a href="http://www.karrlab.org/join">Join us</a></li>
-                        <li><a href="http://www.karrlab.org/contact">Contact</a></li>
+                        <li><a href="https://www.karrlab.org/">Home</a></li>
+                        <li><a href="https://www.karrlab.org/research">Research</a></li>
+                        <li><a href="https://www.karrlab.org/resources">Resources</a></li>
+                        <li><a href="https://www.karrlab.org/publications">Publications</a></li>
+                        <li><a href="https://www.karrlab.org/press">Press</a></li>
+                        <li><a href="https://www.karrlab.org/funding">Funding</a></li>
+                        <li><a href="https://www.karrlab.org/people">People</a></li>
+                        <li><a href="https://www.karrlab.org/join">Join us</a></li>
+                        <li><a href="https://www.karrlab.org/contact">Contact</a></li>
                     </ul>
                 </aside>
 
@@ -92,15 +92,15 @@
                     <div class="top-bar row show-for-medium-up">
                         <div class="small-12 columns">
                             <dl class="sub-nav">
-                                <dd><a href="http://www.karrlab.org/">Home</a></dd>
-                                <dd><a href="http://www.karrlab.org/research">Research</a></dd>
-                                <dd class="active"><a href="http://www.karrlab.org/resources">Resources</a></dd>
-                                <dd><a href="http://www.karrlab.org/publications">Publications</a></dd>
-                                <dd><a href="http://www.karrlab.org/press">Press</a></dd>
-                                <dd><a href="http://www.karrlab.org/funding">Funding</a></dd>
-                                <dd><a href="http://www.karrlab.org/people">People</a></dd>
-                                <dd><a href="http://www.karrlab.org/join">Join us</a></dd>
-                                <dd><a href="http://www.karrlab.org/contact">Contact</a></dd>
+                                <dd><a href="https://www.karrlab.org/">Home</a></dd>
+                                <dd><a href="https://www.karrlab.org/research">Research</a></dd>
+                                <dd class="active"><a href="https://www.karrlab.org/resources">Resources</a></dd>
+                                <dd><a href="https://www.karrlab.org/publications">Publications</a></dd>
+                                <dd><a href="https://www.karrlab.org/press">Press</a></dd>
+                                <dd><a href="https://www.karrlab.org/funding">Funding</a></dd>
+                                <dd><a href="https://www.karrlab.org/people">People</a></dd>
+                                <dd><a href="https://www.karrlab.org/join">Join us</a></dd>
+                                <dd><a href="https://www.karrlab.org/contact">Contact</a></dd>
                             </dl>
                         </div>
                     </div>
@@ -244,13 +244,13 @@ foreach ($pkg_ids as $pkg_id) {
                     <!-- bottom bar -->
                     <div class="row bottom-bar">
                         <div class="logo">
-                            <a href="http://www.mssm.edu"><img src="http://www.karrlab.org/static/img/logo-mssm-32x32.png" /></a>
+                            <a href="https://www.mssm.edu"><img src="https://www.karrlab.org/static/img/logo-mssm-32x32.png" /></a>
                         </div>
 
                         <div class="text-left">
-                            <a href="http://icahn.mssm.edu/departments-and-institutes/genomics">Icahn Institute for Genomics &amp; Multiscale Biology</a><br/>
-                            <a href="http://icahn.mssm.edu/departments-and-institutes/genomics">Department of Genetics &amp; Genomic Sciences</a><br/>
-                            <a href="http://www.mssm.edu">Icahn School of Medicine at Mount Sinai</a>
+                            <a href="https://icahn.mssm.edu/departments-and-institutes/genomics">Icahn Institute for Genomics &amp; Multiscale Biology</a><br/>
+                            <a href="https://icahn.mssm.edu/departments-and-institutes/genomics">Department of Genetics &amp; Genomic Sciences</a><br/>
+                            <a href="https://www.mssm.edu">Icahn School of Medicine at Mount Sinai</a>
                         </div>
 
                         <div class="text-right show-for-medium-up">
@@ -266,8 +266,8 @@ foreach ($pkg_ids as $pkg_id) {
             </div>
         </div>
 
-        <script src="http://www.karrlab.org/static/js/vendor/jquery.js"></script>
-        <script src="http://www.karrlab.org/static/js/foundation.min.js"></script>
+        <script src="https://www.karrlab.org/static/js/vendor/jquery.js"></script>
+        <script src="https://www.karrlab.org/static/js/foundation.min.js"></script>
         <script>
         $(document).foundation();
         </script>

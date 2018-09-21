@@ -77,6 +77,11 @@ function get_source_github($repo, $cache, $get_release=true, $get_commit=true, $
     if ($get_commit) {
         $url = sprintf('https://api.github.com/repos/KarrLab/%s/commits', $repo);
         list($data, $headers) = get_url($url, $cache, 5*60, NULL, NULL, NULL, $api_token);
+        
+        if (!is_array($data)) {
+            throw new Exception("Unable to download commit data for $repo from GitHub. Check that the repo name is correct.");
+        }
+            
         $latest_commit = array(
             'sha' => $data[0]->sha,
             'author_login' => $data[0]->author->login,
@@ -255,8 +260,8 @@ function get_latest_distribution_ctan($repo, $cache) {
 
 function get_latest_docs_rtd($repo, $cache) {
     # The API doesn't seem to return the status of builds
-    # See also http://docs.readthedocs.io/en/latest/api.html
-    $url = sprintf('http://readthedocs.org/api/v1/version/%s/?format=json', $repo);
+    # See also https://docs.readthedocs.io/en/latest/api.html
+    $url = sprintf('https://readthedocs.org/api/v1/version/%s/?format=json', $repo);
     list($response, $headers) = get_url($url, $cache, 5*60);
     return $response;
 }

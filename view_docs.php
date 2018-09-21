@@ -15,7 +15,7 @@ fclose($handle);
 $url = NULL;
 if ($pkg->docs && $pkg->docs->readthedocs) {
     $docs_pkg_id = ($pkg->docs->readthedocs->id ? $pkg->docs->readthedocs->id : $pkg->id);
-    $url = sprintf('http://%s.readthedocs.org', $docs_pkg_id);
+    $url = sprintf('https://%s.readthedocs.org', $docs_pkg_id);
 } elseif ($pkg->docs && $pkg->docs->url) {
     $url = $pkg->docs->url;
 } elseif ($pkg->build && $pkg->build->circleci) {

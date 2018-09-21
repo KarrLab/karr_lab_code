@@ -1,5 +1,5 @@
 {
-  "id": "karr_lab_config",
+  "id": "karr_lab_build_config",
   "type": "Karr Lab utilities",
   "description": "Private configuration (e.g., passwords) for the Karr Lab builds",
   "availability": "Closed",
