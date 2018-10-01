@@ -1,12 +1,12 @@
 {
-  "id": "kinetic_datanator",
+  "id": "datanator",
   "type": "Cell modeling and simulation tools",
-  "description": "Finds the most relevant kinetic data for biochemical models",
+  "description": "Toolkit for finding data for cell modeling",
   "availability": "Open",
   "license": "MIT",
   "docs": {
     "readthedocs": {
-      "id": "kinetic_datanator"
+      "id": "datanator"
     }
   },
   "build": {

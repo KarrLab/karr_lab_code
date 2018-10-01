@@ -1,12 +1,12 @@
 {
-  "id": "datanator_website",
-  "type": "Cell modeling and simulation tools",
-  "description": "Web interface for kinetic_datantor",
+  "id": "datanator_frontend",
+  "type": "Website for datanator",
+  "description": "Finds the most relevant kinetic data for biochemical models",
   "availability": "Open",
   "license": "MIT",
   "docs": {
     "readthedocs": {
-      "id": "datanator_website"
+      "id": "datanator_frontend"
     }
   },
   "build": {
