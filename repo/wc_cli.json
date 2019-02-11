@@ -1,0 +1,27 @@
+{
+  "id": "wc_cli",
+  "type": "Cell modeling and simulation tools",
+  "description": "Framework for testing whole-cell knowledge bases and models",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": true
+  },
+  "build": {
+    "circleci": {
+      "token": ""
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      "token": ""
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      "open_source": true
+    }
+  }
+}

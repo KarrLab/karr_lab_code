@@ -258,6 +258,13 @@ function get_latest_distribution_ctan($repo, $cache) {
     return $response;
 }
 
+$bioportal_api_token = rtrim(file_get_contents('tokens/BIOPORTAL_API_TOKEN'));
+function get_latest_distribution_bioportal($repo, $cache) {
+    $url = sprintf('http://data.bioontology.org/ontologies/%s/submissions?apikey=%s', $repo, $bioportal_api_token);
+    list($response, $headers) = get_url($url, $cache, 24*60*60);
+    return $response;
+}
+
 function get_latest_docs_rtd($repo, $cache) {
     # The API doesn't seem to return the status of builds
     # See also https://docs.readthedocs.io/en/latest/api.html

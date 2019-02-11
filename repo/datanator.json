@@ -1,7 +1,7 @@
 {
   "id": "datanator",
   "type": "Cell modeling and simulation tools",
-  "description": "Toolkit for finding data for cell modeling",
+  "description": "Toolkit for discovering and aggregating data for whole-cell modeling",
   "availability": "Open",
   "license": "MIT",
   "docs": {

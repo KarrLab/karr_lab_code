@@ -1,7 +1,7 @@
 {
-  "id": "intro_to_wc_modeling",
-  "type": "Training materials",
-  "description": "Jupyter playground for learning about whole-cell modeling, <a href='https://sandbox.karrlab.org'>https://sandbox.karrlab.org</a>",
+  "id": "bpforms",
+  "type": "Modeling and simulation tools",
+  "description": "Python package for unambiguously representing the structure of modified forms of biopolymers such as DNA, RNA, and protein",
   "availability": "Open",
   "license": "MIT",
   "docs": {

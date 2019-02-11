@@ -210,6 +210,10 @@ foreach ($types as $type) {
                 $distribution = get_latest_distribution_ctan($dist_pkg_id, $cache);
                 echo sprintf("<a href='https://www.ctan.org/pkg/%s'>%s</a>", $dist_pkg_id, $distribution->version->number);
                 break;
+            case 'bioportal':
+                $distribution = get_latest_distribution_bioportal($dist_pkg_id, $cache);
+                echo sprintf("<a href='http://bioportal.bioontology.org/ontologies/%s'>%s</a>", $dist_pkg_id, $distribution[0]->version);
+                break;
           }
         }
         echo "</td>\n";
