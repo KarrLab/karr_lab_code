@@ -1,11 +1,11 @@
 {
-  "id": "desim",
-  "type": "Modeling and simulation tools",
-  "description": "Python framework for discrete event simulation",
+  "id": "datanator_rest_api",
+  "type": "Cell modeling and simulation tools",
+  "description": "A OAS3 compliant REST API for the Datanator integrated database",
   "availability": "Open",
   "license": "MIT",
   "docs": {
-    "readthedocs": {"id": "desim"}
+    "readthedocs": {"id": "datanator_rest_api"}
   },
   "build": {
     "circleci": {

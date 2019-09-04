@@ -141,9 +141,9 @@ ini_set('display_errors', 1);
 
 require 'functions.php';
 
-function format_label($pkg_id, $label) {
-    return sprintf("<a href=https://github.com/KarrLab/%s/issues?q=is:issue+is:open+label:%s>%s</a>",
-        $pkg_id, $label->name, $label->name);
+function format_label($owner, $pkg_id, $label) {
+    return sprintf("<a href=https://github.com/%s/%s/issues?q=is:issue+is:open+label:%s>%s</a>",
+        $owner, $pkg_id, $label->name, $label->name);
 }
 function format_assignee($assignee) {
     return sprintf("<a href='https://github.com/%s'>%s</a>", $assignee->login, $assignee->login);
@@ -162,7 +162,14 @@ foreach (array_keys($pkg_configs_by_type) as $type) {
 $pkg_ids = array_keys($pkg_configs);
 sort($pkg_ids, SORT_NATURAL | SORT_FLAG_CASE);
 foreach ($pkg_ids as $pkg_id) {
-    $source = get_source_github($pkg_id, $cache, false, false, false, false, false, false, true);
+    $pkg = $pkg_configs[$pkg_id];
+    if (property_exists($pkg, 'owner')){
+        $owner = $pkg->owner;
+    } else {
+        $owner = 'KarrLab';
+    }
+    
+    $source = get_source_github($owner, $pkg_id, $cache, false, false, false, false, false, false, true);
     
     $bugs = 0;
     $enhancements = 0;
@@ -193,33 +200,33 @@ foreach ($pkg_ids as $pkg_id) {
     echo "<tr class='spacing'><td colspan='8'></span></tr>\n";
     
     echo "<tr class='package-summary'>\n";
-    echo sprintf("  <th colspan='2'><a href='https://github.com/KarrLab/%s/issues'>%s</a></th>\n",
-        $pkg_id, $pkg_id);
-    echo sprintf("  <th><a href='https://github.com/KarrLab/%s/issues?q=label:bug'>%d</a></th>\n",
-        $pkg_id, $bugs);
-    echo sprintf("  <th><a href='https://github.com/KarrLab/%s/issues?q=label:enhancement'>%d</a></th>\n",
-        $pkg_id, $enhancements);
-    echo sprintf("  <th><a href='https://github.com/KarrLab/%s/issues?q='>%d</a></th>\n",
-        $pkg_id, $future_features);
-    echo sprintf("  <th><a href='https://github.com/KarrLab/%s/issues?q=label:wontfix'>%d</a></th>\n",
-        $pkg_id, $wontfix);
-    echo sprintf("  <th><a href='https://github.com/KarrLab/%s/issues?q=is:open'>%d</a></th>\n",
-        $pkg_id, $other);
-    echo sprintf("  <th><a href='https://github.com/KarrLab/%s/issues?q=is:closed'>%d</a></th>\n",
-        $pkg_id, $closed);
+    echo sprintf("  <th colspan='2'><a href='https://github.com/%s/%s/issues'>%s</a></th>\n",
+        $owner, $pkg_id, $pkg_id);
+    echo sprintf("  <th><a href='https://github.com/%s/%s/issues?q=label:bug'>%d</a></th>\n",
+        $owner, $pkg_id, $bugs);
+    echo sprintf("  <th><a href='https://github.com/%s/%s/issues?q=label:enhancement'>%d</a></th>\n",
+        $owner, $pkg_id, $enhancements);
+    echo sprintf("  <th><a href='https://github.com/%s/%s/issues?q='>%d</a></th>\n",
+        $owner, $pkg_id, $future_features);
+    echo sprintf("  <th><a href='https://github.com/%s/%s/issues?q=label:wontfix'>%d</a></th>\n",
+        $owner, $pkg_id, $wontfix);
+    echo sprintf("  <th><a href='https://github.com/%s/%s/issues?q=is:open'>%d</a></th>\n",
+        $owner, $pkg_id, $other);
+    echo sprintf("  <th><a href='https://github.com/%s/%s/issues?q=is:closed'>%d</a></th>\n",
+        $owner, $pkg_id, $closed);
     echo "</tr>\n";
     
     foreach ($source['issues']['issues'] as $issue) {
         if ($issue->state != 'closed') {
             echo "<tr>\n";
-            echo sprintf("  <td class='issue-num'><a href='https://github.com/KarrLab/%s/issues/%d'>%d</a></td>\n",
-                $pkg_id, $issue->number, $issue->number);
-            echo sprintf("  <td colspan='2'><a href='https://github.com/KarrLab/%s/issues/%d'>%s</a></td>\n",
-                $pkg_id, $issue->number, $issue->title);
+            echo sprintf("  <td class='issue-num'><a href='https://github.com/%s/%s/issues/%d'>%d</a></td>\n",
+                $owner, $pkg_id, $issue->number, $issue->number);
+            echo sprintf("  <td colspan='2'><a href='https://github.com/%s/%s/issues/%d'>%s</a></td>\n",
+                $owner, $pkg_id, $issue->number, $issue->title);
             
             $labels = array();
             foreach($issue->labels as $label) {
-                array_push($labels, format_label($pkg_id, $label));
+                array_push($labels, format_label($owner, $pkg_id, $label));
             }
             echo sprintf("  <td>%s</td>\n", join(", ", $labels));
             echo sprintf("  <td><a href='https://github.com/%s'>%s</a></td>\n",

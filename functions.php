@@ -57,14 +57,14 @@ function get_url($url, $cache, $expiration=5*60, $post=NULL, $username=NULL, $pa
     return $response;
 }
 
-function get_source_github($repo, $cache, $get_release=true, $get_commit=true, $get_contributors=true, 
+function get_source_github($owner, $repo, $cache, $get_release=true, $get_commit=true, $get_contributors=true, 
     $get_views=true, $get_downloads=true, $get_forks=true, $get_issues=true){
     $api_token = rtrim(file_get_contents('tokens/GITHUB_API_TOKEN'));
     $user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36';
 
     #latest release
     if ($get_release) {
-        $url = sprintf('https://api.github.com/repos/KarrLab/%s/tags', $repo);
+        $url = sprintf('https://api.github.com/repos/%s/%s/tags', $owner, $repo);
         list($data, $headers) = get_url($url, $cache, 5*60, NULL, NULL, NULL, $api_token);
         $tags = array();
         foreach($data as $tag)
@@ -75,7 +75,7 @@ function get_source_github($repo, $cache, $get_release=true, $get_commit=true, $
     
     #latest commit
     if ($get_commit) {
-        $url = sprintf('https://api.github.com/repos/KarrLab/%s/commits', $repo);
+        $url = sprintf('https://api.github.com/repos/%s/%s/commits', $owner, $repo);
         list($data, $headers) = get_url($url, $cache, 5*60, NULL, NULL, NULL, $api_token);
         
         if (!is_array($data)) {
@@ -92,7 +92,7 @@ function get_source_github($repo, $cache, $get_release=true, $get_commit=true, $
     
     #contributors
     if ($get_contributors) {
-        $url = sprintf('https://api.github.com/repos/KarrLab/%s/contributors', $repo);
+        $url = sprintf('https://api.github.com/repos/%s/%s/contributors', $owner, $repo);
         list($data, $headers) = get_url($url, $cache, 5*60, NULL, NULL, NULL, $api_token);
         $num_contributors = count($data);
     }
@@ -123,7 +123,7 @@ function get_source_github($repo, $cache, $get_release=true, $get_commit=true, $
 
     #downloads
     if ($get_downloads) {
-        $url = sprintf('https://api.github.com/repos/KarrLab/%s/releases', $repo);
+        $url = sprintf('https://api.github.com/repos/%s/%s/releases', $owner, $repo);
         list($data, $headers) = get_url($url, $cache, 24*60*60, NULL, NULL, NULL, $api_token);
         $downloads = 0;
         foreach ($data as $release)
@@ -132,7 +132,7 @@ function get_source_github($repo, $cache, $get_release=true, $get_commit=true, $
     
     #forks
     if ($get_forks) {
-        $url = sprintf('https://api.github.com/repos/KarrLab/%s/forks', $repo);
+        $url = sprintf('https://api.github.com/repos/%s/%s/forks', $owner, $repo);
         list($data, $headers) = get_url($url, $cache, 24*60*60, NULL, NULL, NULL, $api_token);
         $forks = count($data);
     }
@@ -148,7 +148,7 @@ function get_source_github($repo, $cache, $get_release=true, $get_commit=true, $
         $page = 0;
         while (true) {
             $page++;
-            $url = sprintf('https://api.github.com/repos/KarrLab/%s/issues?state=all&page=%d&per_page=100', $repo, $page);
+            $url = sprintf('https://api.github.com/repos/%s/%s/issues?state=all&page=%d&per_page=100', $owner, $repo, $page);
             list($data, $headers) = get_url($url, $cache, 24*60*60, NULL, NULL, NULL, $api_token);            
             $issues['total'] += count($data);
             foreach ($data as $issue) {
@@ -189,18 +189,20 @@ function get_source_github($repo, $cache, $get_release=true, $get_commit=true, $
     );
 }
 
-function get_latest_build_circleci($repo, $cache){
+function get_latest_build_circleci($owner, $repo, $cache){
     $circleci_token = rtrim(file_get_contents('tokens/CIRCLECI_TOKEN'));
-
-    $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s?circle-token=%s&limit=1&filter=completed', $repo, $circleci_token);
+    
+    $url = sprintf('https://circleci.com/api/v1.1/project/github/%s/%s?circle-token=%s&limit=1&filter=completed', 
+        $owner, $repo, $circleci_token);
     list($response, $headers) = get_url($url, $cache, 60);
     return $response;
 }
 
-function get_tests_circleci($repo, $build_num, $cache){
+function get_tests_circleci($owner, $repo, $build_num, $cache){
     $circleci_token = rtrim(file_get_contents('tokens/CIRCLECI_TOKEN'));
 
-    $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s/%d/tests?circle-token=%s', $repo, $build_num, $circleci_token);
+    $url = sprintf('https://circleci.com/api/v1.1/project/github/%s/%s/%d/tests?circle-token=%s', 
+        $owner, $repo, $build_num, $circleci_token);
     list($data, $headers) = get_url($url, $cache, 60);
 
     $passes = 0;
@@ -220,7 +222,8 @@ function get_tests_circleci($repo, $build_num, $cache){
     }
     $total = $passes + $skips + $errors + $failures;
 
-    $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s/%d/artifacts?circle-token=%s', $repo, $build_num, $circleci_token);
+    $url = sprintf('https://circleci.com/api/v1.1/project/github/%s/%s/%d/artifacts?circle-token=%s', 
+        $owner, $repo, $build_num, $circleci_token);
     list($data, $headers) = get_url($url, $cache, 60);
     $py2 = false;
     $py3 = false;
@@ -273,11 +276,11 @@ function get_latest_docs_rtd($repo, $cache) {
     return $response;
 }
 
-function get_artifacts_circleci($repo, $build_num, $cache) {
+function get_artifacts_circleci($owner, $repo, $build_num, $cache) {
     $circleci_token = rtrim(file_get_contents('tokens/CIRCLECI_TOKEN'));
 
-    $url = sprintf('https://circleci.com/api/v1.1/project/github/KarrLab/%s/%d/artifacts?circle-token=%s',
-        $repo, $build_num, $circleci_token);
+    $url = sprintf('https://circleci.com/api/v1.1/project/github/%s/%s/%d/artifacts?circle-token=%s',
+        $owner, $repo, $build_num, $circleci_token);
     list($data, $headers) = get_url($url, $cache, 60);
 
     $docs_url = NULL;
@@ -293,8 +296,14 @@ function get_artifacts_circleci($repo, $build_num, $cache) {
     );
 }
 
-function get_coverage_coveralls($repo, $token=NULL, $cache) {
-    $url = sprintf('https://coveralls.io/github/KarrLab/%s.json?repo_token=%s', $repo, $token);
+function get_coverage_coveralls($owner, $repo, $token=NULL, $cache) {
+    $url = sprintf('https://coveralls.io/github/%s/%s.json?repo_token=%s', $owner, $repo, $token);
+    list($response, $headers) = get_url($url, $cache, 60);
+    return $response;
+}
+
+function get_coverage_codecov($owner, $repo, $cache) {
+    $url = sprintf('https://codecov.io/api/gh/%s/%s', $owner, $repo);
     list($response, $headers) = get_url($url, $cache, 60);
     return $response;
 }

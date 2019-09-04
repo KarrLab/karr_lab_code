@@ -1,0 +1,22 @@
+{
+  "id": "OASTools",
+  "owner": "bilalshaikh42",
+  "type": "Software development tools",
+  "description": "A python package to provide tooling for the Open API Specification",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": {"id": "oastools"}
+  },
+  "build": {
+    "circleci": {      
+      "token": ""      
+    }
+  },
+  "test_results": false,
+  "test_coverage": {
+    "coveralls": "",
+    "codecov": "oastools",
+    "html": true
+  }
+}

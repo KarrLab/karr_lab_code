@@ -79,11 +79,16 @@ function print_table($types, $pkg_configs, $cache) {
 
         foreach ($pkg_ids as $pkg_id) {
             $pkg = $pkg_configs[$type][$pkg_id];
+            if (property_exists($pkg, 'owner')){
+                $owner = $pkg->owner;
+            } else {
+                $owner = 'KarrLab';
+            }
 
             #start row
             if ($pkg->test_results && $pkg->build && $pkg->build->circleci) {
-                $latest_build = get_latest_build_circleci($pkg_id, $cache)[0];
-                $tests = get_tests_circleci($pkg_id, $latest_build->build_num, $cache);
+                $latest_build = get_latest_build_circleci($owner, $pkg_id, $cache)[0];
+                $tests = get_tests_circleci($owner, $pkg_id, $latest_build->build_num, $cache);
                 if ($latest_build->status != 'fixed' &&
                     $latest_build->status != 'success') {
                     $status = 'alert';
@@ -101,10 +106,10 @@ function print_table($types, $pkg_configs, $cache) {
             } else {
                 $name = substr($pkg_id, 0, 9)."&#8230;";
             }
-            echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n", $pkg_id, $name);
+            echo sprintf("<td><a href='https://github.com/%s/%s'>%s</a></td>\n", $owner, $pkg_id, $name);
 			
 			#time of last commit
-            $github_info = get_source_github($pkg_id, $cache, false, true, false, false, false, false, true);
+            $github_info = get_source_github($owner, $pkg_id, $cache, false, true, false, false, false, false, true);
             
             $diff = time() - $github_info['latest_commit']['date'];
             $years = floor($diff / (365 * 24 * 60 * 60));
@@ -128,8 +133,8 @@ function print_table($types, $pkg_configs, $cache) {
                 $diff .= sprintf('%dh ', $hours);
             if ($minutes > 0)
                 $diff .= sprintf('%dm', $minutes);
-			echo sprintf("<td class='latest-commit'><a href='https://github.com/KarrLab/%s/tree/%s'>%s</a></td>", 
-				$pkg_id, $github_info['latest_commit']['sha'], $diff);
+			echo sprintf("<td class='latest-commit'><a href='https://github.com/%s/%s/tree/%s'>%s</a></td>", 
+				$owner, $pkg_id, $github_info['latest_commit']['sha'], $diff);
             
             #tests results
             if ($pkg->test_results && $pkg->build && $pkg->build->circleci) {
@@ -141,7 +146,7 @@ function print_table($types, $pkg_configs, $cache) {
                 }
 
                 echo sprintf("<td class='status-bar'>\n");
-                echo sprintf("  <a href='https://tests.karrlab.org/KarrLab/%s'>\n", $pkg_id);
+                echo sprintf("  <a href='https://tests.karrlab.org/%s/%s'>\n", $owner, $pkg_id);
                 echo sprintf("    <div class='container alert-fill' title='Failed'>\n");
                 if ($tests['total'] > 0) {
                     echo sprintf("<div class='bar' style='width:%.0f%%' title='Passed'></div>\n", $tests['passes'] / $tests['total']  * 100);
@@ -151,10 +156,10 @@ function print_table($types, $pkg_configs, $cache) {
                 echo sprintf("    </div>\n");
                 echo sprintf("  </a>\n");
                 echo sprintf("</td>\n");
-                echo sprintf("<td class='status-percent'><a href='https://tests.karrlab.org/KarrLab/%s'>%.0f%%</a></td>\n",
-                    $pkg_id, $percent);
-                echo sprintf("<td class='status-number'><a href='https://tests.karrlab.org/KarrLab/%s'>of %d</a></td>\n",
-                    $pkg_id, $tests['total']);
+                echo sprintf("<td class='status-percent'><a href='https://tests.karrlab.org/%s/%s'>%.0f%%</a></td>\n",
+                    $owner, $pkg_id, $percent);
+                echo sprintf("<td class='status-number'><a href='https://tests.karrlab.org/%s/%s'>of %d</a></td>\n",
+                    $owner, $pkg_id, $tests['total']);
             } else {
                 echo "<td class='status-bar'></td>\n";
                 echo "<td class='status-percent'></td>\n";
@@ -162,10 +167,17 @@ function print_table($types, $pkg_configs, $cache) {
             }
 
             #coverage
-            if ($pkg->test_coverage && $pkg->test_coverage->coveralls) {
-                $coverage = get_coverage_coveralls($pkg_id, $pkg->test_coverage->coveralls->token, $cache);
-
-                $percent = $coverage->covered_percent;
+            if ($pkg->test_coverage && ($pkg->test_coverage->coveralls || $pkg->test_coverage->codecov)) {
+                if ($pkg->test_coverage->coveralls) {
+                    $coverage = get_coverage_coveralls($owner, $pkg_id, $pkg->test_coverage->coveralls->token, $cache);
+                    $percent = $coverage->covered_percent;
+                    $url = sprintf('https://coveralls.io/github/%s/%s', $owner, $pkg_id);
+                } else {
+                    $coverage = get_coverage_codecov($owner, $pkg_id, $cache);
+                    $percent = $coverage->commit->totals->c;
+                    $url = sprintf('https://codecov.io/gh/%s/%s', $owner, $pkg->id);                    
+                }
+                
                 if ($percent < 70) {
                     $status = 'alert';
                 } elseif ($percent < 90) {
@@ -175,15 +187,14 @@ function print_table($types, $pkg_configs, $cache) {
                 }
 
                 echo sprintf("<td class='status-bar'>\n");
-                echo sprintf("  <a href='https://coveralls.io/github/KarrLab/%s'>\n", $pkg_id);
+                echo sprintf("  <a href='%s'>\n", $url);
                 echo sprintf("    <div class='container'>\n");
                 echo sprintf("      <div class='bar %s' style='width:%.0f%%' title='Covered'></div>\n", $status, $percent);
                 echo sprintf("      <div style='clear: both;'></div>\n");
                 echo sprintf("    </div>\n");
                 echo sprintf("  </a>\n");
                 echo sprintf("</td>\n");
-                echo sprintf("<td class='status-percent'><a href='https://coveralls.io/github/KarrLab/%s'>%.0f%%</a></td>\n",
-                    $pkg_id, $percent);
+                echo sprintf("<td class='status-percent'><a href='%s'>%.0f%%</a></td>\n", $url, $percent);
             } else {
                 echo "<td class='status-bar'></td>\n";
                 echo "<td class='status-percent'></td>\n";
@@ -191,9 +202,9 @@ function print_table($types, $pkg_configs, $cache) {
             
             # issues
             $issues = $github_info['issues'];
-            echo sprintf("<td class='issues'><a href='https://github.com/KarrLab/%s/issues' class='%s'>%d</a> / <a href='https://github.com/KarrLab/%s/issues?q='>%d</a></td>\n", 
-                $pkg_id, $issues['needs-work'] > 0 ? 'alert' : '', $issues['needs-work'], 
-                $pkg_id, $issues['total']);
+            echo sprintf("<td class='issues'><a href='https://github.com/%s/%s/issues' class='%s'>%d</a> / <a href='https://github.com/%s/%s/issues?q='>%d</a></td>\n", 
+                $owner, $pkg_id, $issues['needs-work'] > 0 ? 'alert' : '', $issues['needs-work'], 
+                $owner, $pkg_id, $issues['total']);
 
             #end row
             echo "</tr>\n";

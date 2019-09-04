@@ -161,19 +161,28 @@ $types = get_package_types();
 $pkg_configs = get_packages();
 
 foreach ($types as $type) {
+    $pkg_ids = array_keys($pkg_configs[$type]);
+    sort($pkg_ids, SORT_NATURAL | SORT_FLAG_CASE);
+    
+    if (count($pkg_ids) == 0) {
+        continue;
+    }
+    
     echo "<tr class='margin'><th colspan='19'></th></tr>\n";
     echo "<tr class='type'><th colspan='19'>$type</th></tr>\n";
 
-    $pkg_ids = array_keys($pkg_configs[$type]);
-    sort($pkg_ids, SORT_NATURAL | SORT_FLAG_CASE);
-
     foreach ($pkg_ids as $pkg_id) {
         $pkg = $pkg_configs[$type][$pkg_id];
-        $source = get_source_github($pkg->id, $cache);
+        if (property_exists($pkg, 'owner')){
+            $owner = $pkg->owner;
+        } else {
+            $owner = 'KarrLab';
+        }
+        $source = get_source_github($owner, $pkg->id, $cache);
 
         if ($pkg->build && $pkg->build->circleci) {
-          $latest_build = get_latest_build_circleci($pkg->id, $cache)[0];
-          $artifacts = get_artifacts_circleci($pkg->id, $latest_build->build_num, $cache);
+          $latest_build = get_latest_build_circleci($owner, $pkg->id, $cache)[0];
+          $artifacts = get_artifacts_circleci($owner, $pkg->id, $latest_build->build_num, $cache);
         } else {
           $latest_build = NULL;
           $artifacts = array();
@@ -186,7 +195,7 @@ foreach ($types as $type) {
             echo "<tr>";
 
         #name
-        echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n", $pkg->id, $pkg->id);
+        echo sprintf("<td><a href='https://github.com/%s/%s'>%s</a></td>\n", $owner, $pkg->id, $pkg->id);
 
         #status
         echo sprintf("<td>%s</td>\n", $pkg->availability);
@@ -194,7 +203,7 @@ foreach ($types as $type) {
         #license
         echo "<td>";
         if ($pkg->license)
-          echo sprintf("<a href='https://github.com/KarrLab/%s/blob/master/LICENSE'>%s</a>", $pkg->id, $pkg->license);
+          echo sprintf("<a href='https://github.com/%s/%s/blob/master/LICENSE'>%s</a>", $owner, $pkg->id, $pkg->license);
         echo "</td>";
 
         #distribution
@@ -219,8 +228,8 @@ foreach ($types as $type) {
         echo "</td>\n";
 
         #source code
-        echo sprintf("<td><a href='https://github.com/KarrLab/%s'>%s</a></td>\n",
-          $pkg->id, ($source['latest_tag'] ? $source['latest_tag'] : 'Latest'));
+        echo sprintf("<td><a href='https://github.com/%s/%s'>%s</a></td>\n",
+          $owner, $pkg->id, ($source['latest_tag'] ? $source['latest_tag'] : 'Latest'));
 
         #documentation
         echo "<td>";
@@ -240,21 +249,24 @@ foreach ($types as $type) {
         #build
         echo "<td>";
         if ($pkg->build && $pkg->build->circleci)
-            echo sprintf("<a href='https://circleci.com/gh/KarrLab/%s'>%s</a>",
-              $pkg->id, ucfirst($latest_build->status));
+            echo sprintf("<a href='https://circleci.com/gh/%s/%s'>%s</a>",
+              $owner, $pkg->id, ucfirst($latest_build->status));
         echo "</td>\n";
 
         #tests results
         echo "<td>";
         if ($pkg->test_results)
-            echo sprintf("<a href='https://tests.karrlab.org/KarrLab/%s'>Results</a>", $pkg->id);
+            echo sprintf("<a href='https://tests.karrlab.org/%s/%s'>Results</a>", $owner, $pkg->id);
         echo "</td>\n";
 
         #coverage
         echo "<td>";
         if ($pkg->test_coverage && $pkg->test_coverage->coveralls) {
-            $coverage = get_coverage_coveralls($pkg->id, $pkg->test_coverage->coveralls->token, $cache);
-            echo sprintf("<a href='https://coveralls.io/github/KarrLab/%s'>%.1f%%</a>", $pkg->id, $coverage->covered_percent);
+            $coverage = get_coverage_coveralls($owner, $pkg->id, $pkg->test_coverage->coveralls->token, $cache);
+            echo sprintf("<a href='https://coveralls.io/github/%s/%s'>%.1f%%</a>", $owner, $pkg->id, $coverage->covered_percent);
+        } elseif ($pkg->test_coverage && $pkg->test_coverage->codecov) {
+            $coverage = get_coverage_codecov($owner, $pkg->id, $cache);
+            echo sprintf("<a href='https://codecov.io/gh/%s/%s'>%.1f%%</a>", $owner, $pkg->id, $coverage->commit->totals->c);
         }
         echo "</td>\n";
 
@@ -262,7 +274,7 @@ foreach ($types as $type) {
         echo "<td>";
         if ($pkg->code_analysis && $pkg->code_analysis->code_climate){
             if ($pkg->code_analysis->code_climate->open_source) {
-              $url = sprintf('https://codeclimate.com/github/KarrLab/%s', $pkg->id);
+              $url = sprintf('https://codeclimate.com/github/%s/%s', $owner, $pkg->id);
               $gpa = '';
             } else {
               $url = sprintf('https://codeclimate.com/repos/%s', $pkg->code_analysis->code_climate->token);
@@ -274,22 +286,24 @@ foreach ($types as $type) {
         echo "</td>\n";
         
         #issues
-        echo sprintf("<td><a href='https://github.com/KarrLab/%s/issues' class='%s'>%d</a> / <a href='https://github.com/KarrLab/%s/issues?q='>%d</a></td>\n",
+        echo sprintf("<td><a href='https://github.com/%s/%s/issues' class='%s'>%d</a> / <a href='https://github.com/%s/%s/issues?q='>%d</a></td>\n",
+          $owner, 
           $pkg->id, $source['issues']['needs-work'] > 0 ? 'alert' : '', $source['issues']['needs-work'],
+          $owner, 
           $pkg->id, $source['issues']['total']
           );
 
         #views
-        echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
-          $pkg->id, $source['views']);
+        echo sprintf("<td><a href='https://github.com/%s/%s/graphs/traffic'>%d</a></td>\n",
+          $owner, $pkg->id, $source['views']);
 
         #clones
-        echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
-          $pkg->id, $source['clones']);
+        echo sprintf("<td><a href='https://github.com/%s/%s/graphs/traffic'>%d</a></td>\n",
+          $owner, $pkg->id, $source['clones']);
 
         #downloads
-        echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
-          $pkg->id, $source['downloads']);
+        echo sprintf("<td><a href='https://github.com/%s/%s/graphs/traffic'>%d</a></td>\n",
+          $owner, $pkg->id, $source['downloads']);
 
         echo "<td>";
         if ($pkg->distribution && $pkg->distribution->repo == 'pypi') {
@@ -305,14 +319,14 @@ foreach ($types as $type) {
         echo "</td>\n";
 
         #forks
-        echo sprintf("<td><a href='https://github.com/KarrLab/%s/graphs/traffic'>%d</a></td>\n",
-          $pkg->id, $source['forks']);
+        echo sprintf("<td><a href='https://github.com/%s/%s/graphs/traffic'>%d</a></td>\n",
+          $owner, $pkg->id, $source['forks']);
           
         #latest commit
         echo sprintf("<td><a href='https://github.com/%s'>%s</a></td>\n", 
             $source['latest_commit']['author_login'], $source['latest_commit']['author_name']);
-        echo sprintf("<td><a href='https://github.com/KarrLab/%s/tree/%s'>%s</a></td>\n", 
-            $pkg->id, $source['latest_commit']['sha'],
+        echo sprintf("<td><a href='https://github.com/%s/%s/tree/%s'>%s</a></td>\n", 
+            $owner, $pkg->id, $source['latest_commit']['sha'],
             strftime('%Y-%m-%d %H:%M', $source['latest_commit']['date']));
         
         #contributors

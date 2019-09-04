@@ -1,0 +1,33 @@
+{
+  "id": "bcforms",
+  "type": "Modeling and simulation tools",
+  "description": "Toolkit for concretely describing macromolecular complexes",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": {"id": "bcforms"}
+  },
+  "build": {
+    "circleci": {
+      
+      "token": ""
+      
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      
+      "token": ""
+      
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      
+      "open_source": true
+      
+    }
+  }
+}

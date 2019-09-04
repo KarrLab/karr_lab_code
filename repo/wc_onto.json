@@ -1,0 +1,33 @@
+{
+  "id": "wc_onto",
+  "type": "Cell modeling and simulation tools",
+  "description": "Ontology for whole-cell modeling",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": {"id": "wc_onto"}
+  },
+  "build": {
+    "circleci": {
+      
+      "token": ""
+      
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      
+      "token": ""
+      
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      
+      "open_source": true
+      
+    }
+  }
+}

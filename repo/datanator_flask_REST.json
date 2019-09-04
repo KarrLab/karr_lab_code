@@ -1,0 +1,27 @@
+{
+  "id": "datanator_flask_REST",
+  "type": "Cell modeling and simulation tools",
+  "description": "A REST API to for the Datanator toolkit server",
+  "availability": "Closed",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": false
+  },
+  "build": {
+    "circleci": {      
+      "token": "9b3fb9902d1adc56bd32ababf63e531274ba8f42"      
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {      
+      "token": "K2MjKVkhAM1jPar1ejqlehPLXOOv3a50i"      
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {      
+      "token": ""      
+    }
+  }
+}

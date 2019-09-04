@@ -1,0 +1,33 @@
+{
+  "id": "de_sim",
+  "type": "Modeling and simulation tools",
+  "description": "Python framework for discrete event simulation",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": {"id": "de_sim"}
+  },
+  "build": {
+    "circleci": {
+      
+      "token": ""
+      
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      
+      "token": ""
+      
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      
+      "open_source": true
+      
+    }
+  }
+}

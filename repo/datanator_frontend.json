@@ -1,29 +1,27 @@
 {
   "id": "datanator_frontend",
-  "type": "Website for datanator",
+  "type": "Cell modeling and simulation tools",
   "description": "Finds the most relevant kinetic data for biochemical models",
-  "availability": "Open",
+  "availability": "Closed",
   "license": "MIT",
   "docs": {
-    "readthedocs": {
-      "id": "datanator_frontend"
-    }
+    "readthedocs": false
   },
   "build": {
     "circleci": {
-      "token": ""
+      "token": "0e744627a6d34c260e7e9c496418e03c313683b5"
     }
   },
-  "test_results": true,
+  "test_results": false,
   "test_coverage": {
     "coveralls": {
-      "token": ""
+      "token": "uW2OKQ2fozRm7oEj3fCGYZlJbqaekf4gT"
     },
     "html": true
   },
   "code_analysis": {
     "code_climate": {
-      "open_source": true
+      "token": ""
     }
   }
 }

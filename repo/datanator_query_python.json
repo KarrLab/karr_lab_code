@@ -1,0 +1,33 @@
+{
+  "id": "datanator_query_python",
+  "type": "Cell modeling and simulation tools",
+  "description": "A package to query and format the data in the integrated Datanator database",
+  "availability": "Open",
+  "license": "MIT",
+  "docs": {
+    "readthedocs": {"id": "datanator_query_python"}
+  },
+  "build": {
+    "circleci": {
+      
+      "token": ""
+      
+    }
+  },
+  "test_results": true,
+  "test_coverage": {
+    "coveralls": {
+      
+      "token": ""
+      
+    },
+    "html": true
+  },
+  "code_analysis": {
+    "code_climate": {
+      
+      "open_source": true
+      
+    }
+  }
+}
