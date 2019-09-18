@@ -1,5 +1,5 @@
 {
-  "id": "obj_model",
+  "id": "obj_tables",
   "type": "Software development tools",
   "description": "Database-independent Django-like object schema",
   "availability": "Open",
