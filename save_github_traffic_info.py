@@ -22,7 +22,9 @@ for repo_config_filename in glob(os.path.join(REPOS_DIR, '*.json')):
     with open(repo_config_filename, 'r') as file:
         config = json.load(file)
 
-    owner = 'KarrLab'
+    owner = config.get('owner', 'KarrLab')
+    if owner != 'KarrLab':
+        continue
     repo = config['id']
 
     #views
